@@ -1,0 +1,47 @@
+{
+  "name": "Apps",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "moment-range": "^4.0.1",
+    "react": "16.6.3",
+    "react-native": "0.58.4",
+    "react-native-flexbox-grid": "^0.3.2",
+    "react-native-material-textfield": "^0.12.0",
+    "react-native-phone-input": "^0.2.1",
+    "react-native-vector-icons": "^6.3.0"
+  },
+  "devDependencies": {
+    "axios": "^0.18.0",
+    "babel-core": "^7.0.0-bridge.0",
+    "babel-jest": "24.1.0",
+    "cucumber": "^5.1.0",
+    "jest": "24.1.0",
+    "moment": "^2.24.0",
+    "metro-react-native-babel-preset": "0.51.1",
+    "react-test-renderer": "16.6.3",
+    "react-native-material-ui": "^1.30.1",
+    "react-native-calendar-picker": "^5.22.0",
+    "react-navigation": "^3.0.9",
+    "react-native-modal": "^7.0.2",
+    "react-redux": "^6.0.0",
+    "reactotron-react-native": "^2.1.5",
+    "reactotron-redux": "^2.1.3",
+    "reactotron-redux-saga": "^4.0.0",
+    "redux": "^4.0.1",
+    "redux-saga": "^1.0.1",
+    "styled-components": "^4.1.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  },
+  "rnpm": {
+    "assets": [
+      "./assets/fonts/"
+    ]
+  }
+}
