@@ -5,8 +5,11 @@ import {
   Button,
   TouchableHighlight,
   StyleSheet,
-  Alert
+  Alert,
+  StatusBar
 } from 'react-native';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import moment from 'moment'
 import Icon from 'react-native-vector-icons/MaterialIcons'
@@ -23,9 +26,10 @@ import BookingIcons from '../components/booking/BookingIcons';
 import TextTotalDays from '../components/booking/TextTotalDays';
 import TextTotalPerson from '../components/booking/TextTotalPerson';
 
-export default class BookingDateDetailScreen extends React.Component {
+import { getProductWithDateAvalaible } from '../actions/booking_product_date_available'
+// import { } from '../actions/ ' ==> For a while, we call this action, for testing, and next throw 'those' data into "BookingNewFormScreen"
 
-  
+class BookingDateDetailScreen extends React.Component {
 
   static navigationOptions = ({navigation}) => ({
     title: navigation.getParam('data'),
@@ -51,14 +55,28 @@ export default class BookingDateDetailScreen extends React.Component {
 
     this.state = {
       headerDate: null,
-      dataConsumeApi: null
+      dataConsumeApi: null,
+      listProductAndCode: {}
     }
+
+  }
+
+  componentDidMount(){
+    const { navigation, action } = this.props;
+    const dateParamsSecond = navigation.getParam('secondData');
+    
+
+    let data ={
+      date: dateParamsSecond
+    }
+    action.getProductWithDateAvalaible(data);
+    
 
   }
 
   componentDidUpdate(prevProps){
   
-    const { navigation } = this.props;
+    const { navigation, productAvailable  } = this.props;
     const dateParams = navigation.getParam('data');
     const dateParamsSecond = navigation.getParam('secondData');
 
@@ -68,46 +86,155 @@ export default class BookingDateDetailScreen extends React.Component {
         headerDate: dateParams,
         dataConsumeApi: dateParamsSecond
       })
+    };
+
+    if(prevProps.productAvailable != productAvailable){
+      
+      console.log("Product Available : ", productAvailable);
+      // const data = Array.from(productAvailable.data)
+      this.setState({
+        ...this.state,
+        listProductAndCode: productAvailable
+        
+        
+      })
     }
   };
 
   handleNewBookingFillForm = () => {
     // Alert.alert("Hai")
     this.props.navigation.navigate('BookingNewForm');
-
+    // this.props.navigation.navigate('InsideBooking', {data: selectedStartDate, secondData: selectedSDateSecondVersion})
+    
   }
 
   render() {
+
+    const { listProductAndCode } = this.state;
+    const { productAvailable } = this.props;
+
+    const renderLoader = () => {
+      return (
+        <View style={styles.loader}>
+          <Text >Loading...</Text>
+        </View>
+      )
+    }
+
+
+    const renderProductAvailable = () => {
+
+      const { productAvailable } = this.props;
+      console.log(productAvailable);
+
+        productAvailable.map((data, i) => {
+        
+          return (
+            <Row size={12} style={{marginBottom: 12}} key={i}>
+              <Col sm={9} md={6} lg={4}>
+                <ProductDestination value={data.name} fontSize="17px"/>
+              </Col>
+              <Col sm={3} md={2} lg={2}>
+                <TimeInfo value="07.00 AM" fontSize="16px"/>
+              </Col>
+
+              <Col sm={12}>
+                <TextTotalDays value=" 1 Days" fontSize="16px" />
+              </Col>
+
+              <Col sm={7} md={4} lg={3}>
+                <TextTotalPerson value=" 5 of 10" fontSize="16px" />
+              </Col>
+              <Col sm={5} md={4} lg={3} style={{margin:0, padding:0}}>
+                <Button 
+                  color="#0cd952"
+                  title="Available" 
+                  onPress={() => this.handleNewBookingFillForm()}></Button>
+              </Col>
+          </Row>
+          )
+        }) 
+    }
+
+    
   
     return (
       <View style={styles.container}>   
 
         <SalesCalendarResultView>
-          <Row size={12} style={{marginBottom: 12}}>
-            <Col sm={9} md={6} lg={4}>
-              <ProductDestination value="Ananta Riding Club" fontSize="17px"/>
-            </Col>
-            <Col sm={3} md={2} lg={2}>
-              <TimeInfo value="07.00 AM" fontSize="16px"/>
-            </Col>
-          </Row>   
-          <Row size={12}>
-            <Col sm={12}>
-              <TextTotalDays value=" 1 Days" fontSize="16px" />
-            </Col>
-          </Row>
 
-          <Row size={12}>
-            <Col sm={7} md={4} lg={3}>
-              <TextTotalPerson value=" 5 of 10" fontSize="16px" />
-            </Col>
-            <Col sm={5} md={4} lg={3} style={{margin:0, padding:0}}>
-              <Button s
-                color="#0cd952"
-                title="Available" 
-                onPress={() => this.handleNewBookingFillForm()}></Button>
-            </Col>
-          </Row>
+          
+          {
+
+              
+            // productAvailable != undefined || productAvailable.length != null ? 
+
+            productAvailable != undefined || productAvailable != null ? 
+              renderProductAvailable()
+            // productAvailable.map((data, i) => {
+              
+            
+            //   return (
+            //     <Row size={12} style={{marginBottom: 12}} key={i}>
+            //       <Col sm={9} md={6} lg={4}>
+            //         <ProductDestination value={data.name} fontSize="17px"/>
+            //       </Col>
+            //       <Col sm={3} md={2} lg={2}>
+            //         <TimeInfo value="07.00 AM" fontSize="16px"/>
+            //       </Col>
+
+            //       <Col sm={12}>
+            //         <TextTotalDays value=" 1 Days" fontSize="16px" />
+            //       </Col>
+
+            //       <Col sm={7} md={4} lg={3}>
+            //         <TextTotalPerson value=" 5 of 10" fontSize="16px" />
+            //       </Col>
+            //       <Col sm={5} md={4} lg={3} style={{margin:0, padding:0}}>
+            //         <Button 
+            //           color="#0cd952"
+            //           title="Available" 
+            //           onPress={() => this.handleNewBookingFillForm()}></Button>
+            //       </Col>
+
+            //   </Row>
+            //   )
+            // }) 
+            
+            : renderLoader()
+          }
+         
+
+          {/* 
+            <Row size={12} style={{marginBottom: 12}}>
+              <Col sm={9} md={6} lg={4}>
+                <ProductDestination value="Ananta Riding Club" fontSize="17px"/>
+              </Col>
+              <Col sm={3} md={2} lg={2}>
+                <TimeInfo value="07.00 AM" fontSize="16px"/>
+              </Col>
+            </Row>   
+
+
+            <Row size={12}>
+              <Col sm={12}>
+                <TextTotalDays value=" 1 Days" fontSize="16px" />
+              </Col>
+            </Row>
+
+            <Row size={12}>
+              <Col sm={7} md={4} lg={3}>
+                <TextTotalPerson value=" 5 of 10" fontSize="16px" />
+              </Col>
+              <Col sm={5} md={4} lg={3} style={{margin:0, padding:0}}>
+                <Button s
+                  color="#0cd952"
+                  title="Available" 
+                  onPress={() => this.handleNewBookingFillForm()}></Button>
+              </Col>
+            </Row>
+
+          */}
         </SalesCalendarResultView>
 
         {/* 
@@ -140,6 +267,12 @@ const styles = StyleSheet.create({
     flex: 1,
     flexGrow: 1,
     marginTop: 0,
+  },
+  loader : {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 48
   }
 });
 
@@ -147,3 +280,16 @@ const SalesCalendarResultView = styled.View`
   background: transparent;
   padding: 22px;
 `
+const mapStateToProps = (state) => ({
+  login: state.login.data,
+  // list_product: state.productAvailable.data ? state.productAvailable.data.list_product : null
+  productAvailable: state.productAvailable ? state.productAvailable.data : null
+  // productAvailable: state ? state.productAvailable : null
+  
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  action: bindActionCreators({getProductWithDateAvalaible}, dispatch)
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookingDateDetailScreen);

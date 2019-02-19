@@ -5,8 +5,11 @@ Feature: Landing Page Booking ?
     Recent Order memiliki feature menampilkan order- order terbaru,
     Check-in memimiliki feature menampilkan detail of check-in customer
 
-    Recent Order status "paid" berwarna : #1ea0b1
+    Recent Order status "Paid" berwarna : #1ea0b1
     Recent Order status "Deposit" berwarna : #f5a623
+    Recent Order status "Expired" berwarna : ?
+    Recent Order status "Booking Voucher used " berwarna : ?
+    Recent Order status "Reserve" berwarna : ?
 
 Scenario: Berhasil tampil component Date-picker 
     Given You are inside Landing Page - Booking
@@ -31,7 +34,7 @@ Scenario: [Recent Order] - Berhasil muncul "Recent Orders" beserta button "See M
     And You get "3" list 
 
 Scenario: [Recent Order] - Berhasil informasi menampilkan order- order terbaru 
-
+    
     Given You click button "See More"
     When clicked button "See More"
     Then You move page to page of "Tab Manifest"

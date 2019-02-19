@@ -14,6 +14,7 @@ import {
   FlatList,
   Alert
 } from 'react-native';
+import moment from 'moment';
 
 // import { ListItem } from 'react-native-material-ui';
 import CalendarPicker from 'react-native-calendar-picker';
@@ -30,7 +31,6 @@ import CustomerName from '../components/booking/CustomerName';
 import TimeInfo from '../components/booking/TimeInfo';
 import PaxTotal from '../components/booking/PaxTotal';
 import DescriptionId from '../components/booking/DescriptionId';
-import moment from 'moment';
 
 
 import { connect } from 'react-redux';
@@ -115,7 +115,7 @@ class BookingScreen extends React.Component {
   onDateChange(date) {
     this.setState({
       selectedStartDate: moment(date).format('ddd, DD MMM YYYY'),
-      selectedSDateSecondVersion: moment(date).format('YYYY-MMM-DD')
+      selectedSDateSecondVersion: moment(date).format('YYYY-MM-DD')
     }, () => {
       const { selectedStartDate, selectedSDateSecondVersion} = this.state;
       // this.props.navigation.navigate('Authentication');
@@ -177,18 +177,6 @@ class BookingScreen extends React.Component {
     const end   = moment('2017-07-28', 'YYYY-MM-DD');
     // const range = moment.range(start, end);
 
-    const renderRecentView = (data) => {
-      return (
-
-       
-        <Row size={12} style={{marginBottom: 12}}>
-          <Col sm={3}><StatusPayment value={data.status_name} fontSize="12px" /></Col>
-          <Col sm={7}><ProductDestination value={data.product_name} fontSize="13px" /></Col>
-          <Col sm={2}><DateInfo value={data.created_at} fontSize="13px" /></Col>
-        </Row>
-      
-      )
-    }
 
   
   
@@ -290,15 +278,23 @@ class BookingScreen extends React.Component {
             {
               
               recentOrderList.length != null ? 
-              recentOrderList.map((data, i) => {
-                return (
-                  <Row size={12} style={{marginBottom: 12}} key={i}>
-                    <Col sm={3}><StatusPayment value={data.status_name} fontSize="12px" /></Col>
-                    <Col sm={7}><ProductDestination value={data.product_name} fontSize="13px" /></Col>
-                    <Col sm={2}><DateInfo value={data.created_at} fontSize="13px" /></Col>
-                  </Row>
-                )
-              })
+                recentOrderList.map((data, i) => {
+                  return (
+                    
+                    <Row size={12} style={{marginBottom: 12}} key={i}>
+                      <Col sm={3}><StatusPayment value={data.status_name} fontSize="12px" /></Col>
+                      <Col sm={7}><ProductDestination value={data.product_name} fontSize="13px" /></Col>
+                      <Col sm={2} style={{marginBottom: 10}}><DateInfo value={moment(data.created_at).format('DD MMM')} fontSize="13px" /></Col>
+
+                      <Col sm={10}><CustomerName value={data.name} fontSize="12px" /></Col>
+                      <Col sm={2} style={{marginBottom: 5}}><TimeInfo value="Just now" fontSize="12px" /></Col>
+
+                      <Col sm={6}><PaxTotal value={data.ticket} fontSize="12px" /></Col>
+                      <Col sm={6}><DescriptionId value={data.transaction_code} fontSize="12px" /></Col>
+                      
+                    </Row>
+                  )
+                })
               : null
             }
             </RecentOrderListView>
@@ -414,6 +410,7 @@ const BorderBottomView = styled.View`
   margin-bottom:10; 
 `
 
+
 // border-radius: 2;
 // shadow-radius: 2;
 
@@ -444,7 +441,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  },
+  }
 });
 
 const mapStateToProps = (state) => ({

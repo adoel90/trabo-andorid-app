@@ -49,3 +49,10 @@ export const GET_BOOKING_PRODUCT = asyncStatusBookingAvailable("Get Booking Prod
 export const RECENT_ORDER_REQUEST = "Request Recent Order, status... "
 export const GET_RECENT_ORDER = asyncStatusBookingAvailable("Get Recent Order, status... ")
 
+//* Booking - Product Date Available Detail - {{url}}/product/sales-calendar?date=2019-02-17
+export const PRODUCT_DATE_AVAILABLE_REQUEST = "Request Product Date Available ==> '/mobile/product', status ... ";
+export const GET_PRODUCT_WITH_DATE_AVAILABLE = asyncStatusBookingAvailable("Get Product With Date Available, status ...");
+
+//* Booking - Product Detail - {{url}}/product/A-09227133?date=2019-02-17&time=05:30 AM
+export const PRODUCT_DETAIL_SELECTED_REQUEST = "Request Product Detail Selected, status ... ";
+export const GET_PRODUCT_DETAIL_SELECTED = asyncStatusBookingAvailable("Get Product Detail, status...");

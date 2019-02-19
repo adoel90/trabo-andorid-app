@@ -1,4 +1,4 @@
-import { GET_BOOKING_PRODUCT } from '../constants/action-types'
+import { GET_BOOKING_PRODUCT } from '../constants/action-types';
 
 const initialState = {
     loading : false,
