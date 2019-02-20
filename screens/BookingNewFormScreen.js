@@ -11,6 +11,10 @@ import {
   ScrollView
 } from 'react-native';
 
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import moment from 'moment';
+
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import styled, {ThemeProvider, withTheme} from 'styled-components/native'
 import {Column as Col, Row} from 'react-native-flexbox-grid';
@@ -21,10 +25,11 @@ import PhoneInput from 'react-native-phone-input'
 import TextDate from '../components/new_booking/TextDate';
 import TextGeneral from '../components/TextGeneral';
 import IconGeneral from '../components/IconGeneral';
-
 import ProductDestination from '../components/booking/ProductDestination';
 
-export default class BookingNewFormScreen extends React.Component {
+import { getProductDetail } from '../actions/booking_product_detail';
+
+class BookingNewFormScreen extends React.Component {
 
   static navigationOptions = {
     title: 'New Booking',
@@ -39,8 +44,6 @@ export default class BookingNewFormScreen extends React.Component {
       fontFamily:'TraboRobotoMedium',
       fontWeight:'200'
     }
-
-    
   };
 
   constructor(props){
@@ -51,10 +54,48 @@ export default class BookingNewFormScreen extends React.Component {
     this.state = {
         phone: '',
         name:'',
-        email:''
+        email:'',
+        nameOfProductDetail: '',
+        timeProduct:'',
+        dateProduct:'',
+        codeProduct: ''
     }
 
   }
+
+  componentDidMount(){
+    const { navigation, action } = this.props;
+    const paramsFromBookingDateDetail = navigation.getParam('data');
+    // console.log(paramsFromBookingDateDetail);
+
+    this.setState({
+      ...this.state,
+      timeProduct: paramsFromBookingDateDetail.time,
+      dateProduct: paramsFromBookingDateDetail.from,
+      codeProduct: paramsFromBookingDateDetail.code
+    })
+
+
+    action.getProductDetail(paramsFromBookingDateDetail);
+        
+  }
+
+  componentDidUpdate(prevProps){
+  
+    const { navigation, productDetail } = this.props;
+
+    if(prevProps.productDetail != productDetail){
+      if(productDetail != null){
+        console.log("Props Product Detail : ", productDetail);
+
+        this.setState({
+          ...this.state,
+          nameOfProductDetail: productDetail.name
+        })
+        
+      }
+    }
+  };
 
   handleInputChange = (e, data ) => {
 
@@ -74,16 +115,16 @@ export default class BookingNewFormScreen extends React.Component {
     });
   };
 
-  componentDidUpdate(prevProps){
-  
-    const { navigation } = this.props;
-    const dateParams = navigation.getParam('data');
-  };
-
   render() {
 
     const { navigation } = this.props;
-    let { phone, name, email} = this.state;
+    let { phone, 
+          name, 
+          email, 
+          nameOfProductDetail, 
+          timeProduct,
+          dateProduct
+        } = this.state;
   
     return (
       <View>   
@@ -93,7 +134,7 @@ export default class BookingNewFormScreen extends React.Component {
           <CardView> 
               <Row size={12} style={{margin:0, padding:0}}>
                   <Col sm={12} style={{margin: 0, padding: 5}}>
-                      <ProductDestination value="Ananta Riding Club" fontSize="28px" />
+                      <ProductDestination value={nameOfProductDetail} fontSize="28px" />
                   </Col>
               </Row>
 
@@ -102,15 +143,15 @@ export default class BookingNewFormScreen extends React.Component {
                       <Text color="gray" style={{fontFamily: 'TraboRobotoMedium'}}> Date</Text>
                   </Col>
                   <Col sm={6} style={{padding: 5}}>
-                      <Text color="gray" style={{fontFamily: 'TraboRobotoMedium'}} >Time</Text>
+                      <Text color="gray" style={{fontFamily: 'TraboRobotoMedium'}} > Time</Text>
                   </Col>
               </Row>
               <Row size={12}>
                   <Col sm={6} style={{padding: 5}}>
-                      <TextDate value="Sun, 18 Feb 2019" fontSize="17px" />
+                      <TextDate value={moment(dateProduct).format('ddd, DD MMM YYYY')} fontSize="17px" />
                   </Col>
                   <Col sm={6} style={{padding: 5}}>
-                      <TextDate value="09.00" fontSize="17px" />
+                      <TextDate value={timeProduct} fontSize="17px" />
                   </Col>
               </Row>
           </CardView>
@@ -280,11 +321,6 @@ const styles = StyleSheet.create({
   }
 });
 
-const SalesCalendarResultView = styled.View`
-  background: transparent;
-  padding: 22px;
-`
-
 const CardView = styled.View`
   background: white;
   border-width: 1;
@@ -301,3 +337,14 @@ const CardView = styled.View`
   margin-top: 4;
   margin-bottom:7; 
 `
+
+const mapStateToProps = (state) => ({
+  login: state.login.data,
+  productDetail: state.productDetail.data
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  action: bindActionCreators({getProductDetail}, dispatch)
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookingNewFormScreen);

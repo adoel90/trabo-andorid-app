@@ -4,7 +4,9 @@
 * https://partner.trabo.co/booking/new/A-09213790
 
 # ADB Magic (https://stackoverflow.com/questions/7789826/adb-shell-input-events)
-* adb shell input keyevent 82 ==> To show Developer Menu in Android Device ! 
+* To show Developer Menu in Android Device :
+
+    - adb shell input keyevent 82
 
 # Add react-native-restart 
 * https://github.com/avishayil/react-native-restart#rn-040
@@ -37,9 +39,32 @@
 # Waiting List "Kerjaan":
 * What the color for status name transaction ? 
 * What ? Border bottom in React Native is hard !!!
-* Normalized data "Available Product with Date"
+* Normalized data "Available Product with Date" ==> DONE, Anwar has thrown those data.
 * Benerin pantekan "Token" ente dul :
     - /middleware-saga/booking_calendar_available.js
     - /middleware/booking_product_date_available.js
 * Icon in "Date Picker"
 * Functional "Date Picker"
+* Add border bottom in "BookingDateDetailScreen.js"
+
+
+
+
+     {/* 
+        <Toolbar
+          leftElement="menu"
+          centerElement="Searchable"
+          searchable={{
+            autoFocus: true,
+            placeholder: 'Search',
+          }}
+          rightElement={{
+              menu: {
+                  icon: "more-vert",
+                  labels: ["item 1", "item 2"]
+              }
+          }}
+          onRightElementPress={ (label) => { console.log(label) }}
+        />
+
+        */}

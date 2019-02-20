@@ -12,7 +12,7 @@ const TextTotalDay = ({value, fontSize}) => (
             // style={[styles, textStyles]}
             color="gray"
         />
-        {value}
+        { value }
 
     </TextElement>
 )

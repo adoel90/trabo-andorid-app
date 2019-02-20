@@ -5,13 +5,15 @@ import bookingCalendarReducer from './bookingCalendarReducer';
 import bookingProductReducer from './bookingProduct';
 import bookingRecentOrderReducer from './bookingRecentOrder';
 import bookingProductDateAvailableReducer from './bookingProductDateAvailable';
+import bookingProductDetailReducer from './bookingProductDetail';
 
 export default combineReducers({
     login: loginReducer,
     bookingCalendar:  bookingCalendarReducer,
     product: bookingProductReducer,
     recentOrder: bookingRecentOrderReducer,
-    productAvailable: bookingProductDateAvailableReducer
+    productAvailable: bookingProductDateAvailableReducer,
+    productDetail: bookingProductDetailReducer
     
 });
 

@@ -5,7 +5,7 @@ export const getProductDetail = (data) => ({
     
     type: PRODUCT_DETAIL_SELECTED_REQUEST,
     payload: {
-        url: URL_API + `/product/${data.code}?date=${data.date}&time=${data.time}`,
+        url: URL_API + `/product/${data.code}?date=${data.from}&time=${data.time}`,
         next: GET_PRODUCT_DETAIL_SELECTED 
     }
 });

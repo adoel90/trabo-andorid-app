@@ -26,7 +26,7 @@ axios.defaults.headers.common = headers;
             // console.log(response);
             
             if(response.status == 200){
-                dispatch({type: action.payload.next.SUCCESS, payload: response.data.response})
+                dispatch({type: action.payload.next.SUCCESS, payload: response.data ? response.data.response : null})
             
             } else {
                 dispatch({type:action.payload.next.PENDING});

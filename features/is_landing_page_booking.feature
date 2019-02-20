@@ -59,7 +59,6 @@ Scenario: [Component Dropdownlist - Technical] berhasil Date Picker sesuai denga
     Then Apps is appearing sales date available
 
 Scenario: Berhasil menampilkan "New Booking - Fill"
-    Given You clicked Button "Available" atau "Overbooking"
     
 
 

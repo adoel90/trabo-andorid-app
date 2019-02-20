@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 const TimeInfo = ({value, fontSize}) => (
 
     <TextElement fontSize={fontSize}>
-        {value}
+        { value }
     </TextElement>
 )
   
