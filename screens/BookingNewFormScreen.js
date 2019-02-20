@@ -14,6 +14,7 @@ import {
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import moment from 'moment';
+const numeral = require('numeral');
 
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import styled, {ThemeProvider, withTheme} from 'styled-components/native'
@@ -24,6 +25,7 @@ import PhoneInput from 'react-native-phone-input'
 
 import TextDate from '../components/new_booking/TextDate';
 import TextGeneral from '../components/TextGeneral';
+import TextGeneralBold from '../components/TextGeneralBold';
 import IconGeneral from '../components/IconGeneral';
 import ProductDestination from '../components/booking/ProductDestination';
 
@@ -50,15 +52,23 @@ class BookingNewFormScreen extends React.Component {
     super(props);
 
     this.handleInputChange = this.handleInputChange.bind(this);
+    this.handlePostBookingForm = this.handlePostBookingForm.bind(this);
 
     this.state = {
         phone: '',
         name:'',
         email:'',
-        nameOfProductDetail: '',
+        specialnotes:'',
+        referral:'',
+        komenk:'',
         timeProduct:'',
         dateProduct:'',
-        codeProduct: ''
+        codeProduct: '',
+        listPax: {}, 
+        amountPaxPriceAdultId:null,
+        packet:{},
+        listPackages:{},
+        listAdditionalProductsState: {}
     }
 
   }
@@ -83,18 +93,30 @@ class BookingNewFormScreen extends React.Component {
   componentDidUpdate(prevProps){
   
     const { navigation, productDetail } = this.props;
+    // const { listPackages } = this.state;
 
     if(prevProps.productDetail != productDetail){
-      if(productDetail != null){
-        console.log("Props Product Detail : ", productDetail);
 
+      if(productDetail.listPackage != null || productDetail.listPackage.length != null){
         this.setState({
           ...this.state,
-          nameOfProductDetail: productDetail.name
+          listPackages: productDetail.listPackage
         })
-        
+      };
+
+      if(productDetail.listAdditionalProducts != null || productDetail.listAdditionalProducts.length != null){
+        this.setState({
+          ...this.setState,
+          listAdditionalProductsState: productDetail.listAdditionalProducts
+        }, () => {
+          console.log(this.state.listAdditionalProductsState);
+          
+        })
       }
-    }
+ 
+     
+  
+    };
   };
 
   handleInputChange = (e, data ) => {
@@ -115,15 +137,24 @@ class BookingNewFormScreen extends React.Component {
     });
   };
 
+  handlePostBookingForm = () => {
+    Alert.alert('Post Booking ...')
+  }
+
   render() {
 
-    const { navigation } = this.props;
+    const { navigation, productDetail } = this.props;
     let { phone, 
           name, 
           email, 
-          nameOfProductDetail, 
+          referral,
+          komenk,
+          specialnotes,
           timeProduct,
-          dateProduct
+          dateProduct,
+          listPackages,
+          listAdditionalProductsState
+          
         } = this.state;
   
     return (
@@ -134,7 +165,7 @@ class BookingNewFormScreen extends React.Component {
           <CardView> 
               <Row size={12} style={{margin:0, padding:0}}>
                   <Col sm={12} style={{margin: 0, padding: 5}}>
-                      <ProductDestination value={nameOfProductDetail} fontSize="28px" />
+                      <ProductDestination value={productDetail.nameOfProduct != null ? productDetail.nameOfProduct : "Where is your Destination"} fontSize="28px" />
                   </Col>
               </Row>
 
@@ -178,7 +209,7 @@ class BookingNewFormScreen extends React.Component {
                       <PhoneInput 
                         ref='phone'
                         style={{margin:5}}
-                        initialCountry="IDN"
+                        initialCountry="US"
                         value=" Phone Number"
                       
                       />
@@ -216,10 +247,12 @@ class BookingNewFormScreen extends React.Component {
             
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Tickets</Text>
             
-            {/** Adults */}
+            {/** Adults - var string = numeral(1000).format('0,0'); */}
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
-                <TextGeneral value="Adults (IDR 450000)" fontSize="17px" />
+                <TextGeneral 
+                  value={ productDetail.listPaxAdult ? "Adults ( IDR " +  numeral(productDetail.listPaxAdult.amount).format('0,0') + " )" : "..."} 
+                  fontSize="17px" />
               </Col>
               <Col sm={1}>
                 <IconGeneral name="remove-circle" />
@@ -235,7 +268,7 @@ class BookingNewFormScreen extends React.Component {
             {/** Children */}
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
-                <TextGeneral value="Children (IDR 300000)" fontSize="17px" />
+                <TextGeneral value={productDetail.listPaxChild ? "Children ( IDR " + numeral(productDetail.listPaxChild.amount).format('0,0') + " )" : "..."} fontSize="17px" />
               </Col>
               <Col sm={1}>
                 <IconGeneral name="remove-circle" />
@@ -248,10 +281,10 @@ class BookingNewFormScreen extends React.Component {
               </Col>
             </Row>
 
-            {/** Toddler */}
+            {/** Toddler === INFANT */}
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
-                <TextGeneral value="Children (IDR 300000)" fontSize="17px" />
+                <TextGeneral value={productDetail.listPaxInfant ? "Children ( IDR " + numeral(productDetail.listPaxInfant.amount).format('0,0') + " )" : "..."} fontSize="17px" />
               </Col>
               <Col sm={1}>
                 <IconGeneral name="remove-circle" />
@@ -267,7 +300,43 @@ class BookingNewFormScreen extends React.Component {
 
           {/* #4 PACKAGE*/}
           <CardView>
-            <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Package (Maximum Pax per booking = 20)</Text>
+            
+            {
+              listPackages.length != null ? listPackages.map((data, i) => {
+                return (
+                  <Row key={i} size={12} style={{margin: 12}} > 
+                    <Text style={{fontFamily: 'TraboRobotoMedium'}} color="gray">Package {"\n"}{"\n"}</Text>
+                    <Text style={{fontFamily: 'TraboRobotoMedium', marginBottom:10}} color="gray">( Maximum Pax per booking = {data.maximum} ) </Text>
+                    
+                    <Col sm={8}>
+                      <TextGeneral value={data.pax_type} fontSize="17px" />
+                      <TextGeneral value={"( IDR " + numeral(data.amount).format('0,0') + " )"} fontSize="14px" />
+                    </Col>
+                    <Col sm={1}>
+                      <IconGeneral name="remove-circle" />
+                    </Col>
+                    <Col sm={2}>
+                      <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>0</Text>
+                    </Col>
+                    <Col sm={1}>
+                      <IconGeneral name="control-point" />
+                    </Col>
+
+                    <Text></Text>
+                    <Col sm={9}>
+                      <TextGeneral value={" Age " + data.age_from + " - " + data.age_to } fontSize="11px" />
+                    </Col>
+                    <Col sm={3}>
+                      <TextGeneral value={"Minimum " + data.minimum + " PAX"} fontSize="12px" style={{color: 'black'}}/>
+                    </Col>
+                  </Row>
+                )
+              }) : null
+            }
+            
+
+            {/**
+            
 
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
@@ -293,20 +362,150 @@ class BookingNewFormScreen extends React.Component {
                 <TextGeneral value="Minimum 2 PAX" fontSize="12px" style={{color: 'black'}}/>
               </Col>
             </Row>
+
+             */}
           </CardView>
 
           {/* #5 ADDITIONAL PRODUCT*/}
           <CardView>
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
 
+            {
+              listAdditionalProductsState.length != null ? listAdditionalProductsState.map((data, i) => {
+                console.log("Llist Additional Product State : ", data);
+                
+                return (
+                  <Row key={i} size={12} style={{marginLeft: 12}}>
+                    <Col sm={12}>
+                      <TextGeneral value={data.name} fontSize="18px" />
+                    </Col>
+                    {
+                      // In here, if no error, i put list details in here
+                    }
+                  </Row>
+                )
+
+              }) : null
+            }
+
+             {/* 
+              <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
+
+              <Row size={12} style={{marginLeft: 12}}>
+                <Col sm={12}>
+                  <TextGeneral value="Cabin" fontSize="18px" />
+                </Col>
+              </Row>
+              
+              <Row size={12} style={{margin: 12}}>
+                <Col sm={8}>
+                  <TextGeneral value="Seahorse Standard Cabin" fontSize="17px" />
+                  <TextGeneral value="IDR 4000000" fontSize="14px" />
+                  <TextGeneral value="Remark: Twin 2 single" fontSize="12px" />
+                  <TextGeneral value="Maximum per booking = 2" fontSize="12px" />
+                </Col>
+
+                <Col sm={1}>
+                  <IconGeneral name="remove-circle" />
+                </Col>
+
+                <Col sm={2}>
+                  <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
+                </Col>
+
+                <Col sm={1}>
+                  <IconGeneral name="control-point" />
+                </Col>
+              </Row>
+
+            */}
+          </CardView>
+          
+          {/* #6 CANCELLATION POLICY*/}
+          <CardView>
+            <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Cancellation Policy</Text>
             <Row size={12} style={{margin: 12}}>
-              <Col sm={8}>
-                <TextGeneral value="Cabin" fontSize="17px" />
+              <Col sm={10}>
+                <TextGeneral value="50% is the cancellation amount 15 days before travel date" fontSize="17px" />
+                <TextGeneral value="80% is the cancellation amount 7 days before travel date" fontSize="17px" />
+                <TextGeneral value ="100% is the cancellation amount 3 days before travel date" fontSize="17px" />
               </Col>
             </Row>
           </CardView>
 
+          {/* #6 ADDITIONAL DESCRIPTION */}
+          <CardView>
+            <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Description</Text>
+            <Row size={12} style={{margin: 12}}>
+              <Col sm={12}>
+                <TextGeneral value="Raja Ampat - 8 Days Day One : Sorong" fontSize="18px" />
+                <TextGeneral value="Welcome to Dampier Straits areas. We will have check dive at Mioskon. Monitoring your buoyancy skill and make yourself comfortable with water and your gear. For some of you who has not dive for a long time, check dive is always a good way to refresh your skill. We have many excellent dive spot around the area. Cape Kri is a great start of the day with most fish and coral species accounted on a single dive site. Truly dive sites like Cape Kri, of Dr. Allen’s 30-year lifetime record fish count. Cape Kri has probably the largest concentration of big fish of any sites in northern Raja Ampat. Mioskon, Cape Kri and Mike’s point are among the sites for day two.
+                " fontSize="17px" />
+              
+              </Col>
+            </Row>
+          </CardView>
 
+          {/** #7 SPECIAL NOTES */}
+          <CardView>
+            <Row size={12}>
+              <Col sm={12}>
+                <TextField
+                    label='Special Notes'
+                    value={specialnotes}
+                    // labelPadding={3}
+                    labelTextStyle={{fontFamily:'TraboRobotoMedium'}}
+                    onChangeText={ (specialnotes) => this.setState({ specialnotes }) }
+                    animationDuration={150}
+                    // style={{marginLeft:30}}
+                    containerStyle={{marginLeft:7}}
+                />  
+              </Col>
+            </Row>
+          </CardView>
+
+          {/** #8 REFERRAL & KOMENK */}
+          <CardView>
+            <Row size={12}>
+              <Col sm={12}>
+                <TextField
+                    label='Referral'
+                    value={referral}
+                    // labelPadding={3}
+                    labelTextStyle={{fontFamily:'TraboRobotoMedium'}}
+                    onChangeText={ (referral) => this.setState({ referral }) }
+                    animationDuration={150}
+                    // style={{marginLeft:30}}
+                    containerStyle={{marginLeft:7}}
+                />  
+              </Col>
+              <Col sm={12}>
+                <TextField
+                    label='Comments'
+                    value={komenk}
+                    // labelPadding={3}
+                    labelTextStyle={{fontFamily:'TraboRobotoMedium'}}
+                    onChangeText={ (komenk) => this.setState({ komenk }) }
+                    animationDuration={150}
+                    // style={{marginLeft:30}}
+                    containerStyle={{marginLeft:7}}
+                />  
+              </Col>
+            </Row>
+
+            <Row size={12}>
+              <Col sm={7}><Text></Text></Col>
+              <Col sm={5} style={{marginRight: 10}}>
+                <Button 
+                  style={{marginTop: 17, marginBottom: 10}}
+                  color="#f16724"
+                  title="PROCEED TO PAYMENT" 
+                  // onPress={(e) => this.handlePostBookingForm(e, data)}>
+                  onPress={(e) => this.handlePostBookingForm(e)}>
+                </Button>
+              </Col>
+            </Row>
+          </CardView>        
         </ScrollView>
       </View>
     );

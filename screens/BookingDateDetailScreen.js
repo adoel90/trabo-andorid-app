@@ -87,15 +87,13 @@ class BookingDateDetailScreen extends React.Component {
     if(prevProps.productAvailable != productAvailable){
       if(productAvailable != null){
         if(typeof productAvailable != undefined ){
-
+          
           this.setState({
-              ...this.state,
-              listProductAndCode: productAvailable 
-            })
-          }
+            ...this.state,
+            listProductAndCode: productAvailable 
+          })
         }
-
-      
+      }      
     }
   };
 

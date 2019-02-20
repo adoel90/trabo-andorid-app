@@ -3,7 +3,8 @@ import { GET_PRODUCT_DETAIL_SELECTED } from '../constants/action-types';
 const initialState = {
     loading : false,
     list : [],
-    data: {}
+    data: {},
+    // list_pax:{}
 };
 
 
