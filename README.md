@@ -26,6 +26,10 @@
 # Add input Phone Number
 * https://github.com/thegamenicorus/react-native-phone-input
 
+# Add Bottom Sheet Action
+* https://npms.io/search?q=react-bottom-sheet
+* https://github.com/InterfaceKit/react-native-js-bottom-sheet 
+
 # Gradle Clean
 * commands: 
     1.cd (path to project/android folder) 
@@ -50,6 +54,13 @@
 * https://github.com/marudy/react-native-responsive-screen
 * https://medium.com/wix-engineering/the-full-react-native-layout-cheat-sheet-a4147802405c
 * https://facebook.github.io/react-native/docs/layout-props.html
+
+
+# Create your own library React Native
+* https://facebook.github.io/react-native/docs/native-modules-setup
+
+# Customize back button in react-navigation
+* https://github.com/react-navigation/react-navigation/issues/779
 
 
 # Waiting List "Kerjaan":

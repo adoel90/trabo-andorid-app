@@ -1,12 +1,31 @@
 import React from 'react';
-import { View, Button, CheckBox, StyleSheet, Text, ScrollView, TextInput} from 'react-native';
+import { View, Button, CheckBox, StyleSheet, Text, ScrollView, TextInput, TouchableHighlight, Alert} from 'react-native';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {widthPercentageToDP as width, heightPercentageToDP as height} from 'react-native-responsive-screen';
 import {Column as Col, Row} from 'react-native-flexbox-grid';
 import styled from 'styled-components';
+import BottomSheet from 'react-native-js-bottom-sheet'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import Entypo from 'react-native-vector-icons/Entypo'
+import { getPropertyName } from 'css-to-react-native';
+import {
+    getTheme,
+    MKColor,
+    MKRadioButton,
+    setTheme,
+    Checkbox,
+    IconToggle,
+    RadioButton,
+    RadioButtonGroup,
+    Switch,
+  } from 'react-native-material-kit';
+
+import { postCalculatePriceBooking } from '../actions/booking_post_calculate_price';
 
 class BookingPaymentScreen extends React.Component {
+
+    bottomSheet: BottomSheet
 
     static navigationOptions = {
         title: 'Payment',
@@ -24,7 +43,15 @@ class BookingPaymentScreen extends React.Component {
     };
 
     constructor(props){
-        super(props)
+        super(props);
+        this.radioGroup = new MKRadioButton.Group();
+
+        this.handleBottomSheetAction = this.handleBottomSheetAction.bind(this);
+        this.handlePaymentViaCash = this.handlePaymentViaCash.bind(this);
+        this.handleCalculatePrice = this.handleCalculatePrice.bind(this);
+        this.state = {
+            active: ''
+        }
     
     }
 
@@ -35,7 +62,34 @@ class BookingPaymentScreen extends React.Component {
     componentDidUpdate(prevProps){
 
     };
-    
+
+    handleBottomSheetAction = () => {
+        this.bottomSheet.open();
+    };
+
+    handlePaymentViaCash = (e) => {
+        
+        this.bottomSheet.close();
+        e.preventDefault();
+
+        Alert.alert("Do you want pay with cash ?")
+    };
+
+    handleCalculatePrice = (e, data) => {
+
+        let params = {
+            adult : 1,
+            children : 1,
+            toddlers : 0,
+            date : "2019-02-27",
+            product_code : "A-09229850",
+            package:[{"id": 328500, "qty": 0}],
+            additional:[{"id": 197, "qty": 0},{"id": 198, "qty": 0},{"id": 201, "qty": 0}],
+            user_code:"", //92
+            promo_code:"satu"
+        }
+    };
+
     render() {
 
         return (
@@ -43,7 +97,11 @@ class BookingPaymentScreen extends React.Component {
                 <ScrollView>
                     <CardView>
                         <RowCalculatePrice>
-                            <Button title="CALCULATE PRICE" color="#f16724" style={{marginTop: 10, marginRght: 10}}></Button>
+                            <Button
+                                onPress={(e, data) => this.handleCalculatePrice(e, data)}                             
+                                title="CALCULATE PRICE" 
+                                color="#f16724" 
+                                style={{marginTop: 10, marginRght: 10}}></Button>
                         </RowCalculatePrice>
                         <Row size={12} style={{margin: 15}}>
                             <Col sm={12}>
@@ -112,15 +170,15 @@ class BookingPaymentScreen extends React.Component {
                         </Row>
 
                         {/** VOUCHER */}
-                        <Row size={12} style={{marginTop: 10}}>
-                            <Col sm={7}>
+                        <Row size={12} style={{marginTop: 10, marginBottom: 10}}>
+                            <Col sm={8}>
                                 <TextInput
                                     style={{ height: 40, width: "95%", borderColor: '#f16724', borderWidth: 1,  marginLeft: 15}}
                                     placeholder="Voucher Code"
                                     underlineColorAndroid="transparent"
                                 />
                             </Col>
-                            <Col sm={5}>
+                            <Col sm={4}>
                                 <Button title="CHECK" color="#f16724" style={{fontFamily: 'TraboRobotoMedium', smarginLeft: 5,marginTop: 15, marginRight:5 }}></Button>
                             </Col>
                         </Row>
@@ -130,20 +188,91 @@ class BookingPaymentScreen extends React.Component {
                     <CardView style={{marginTop: 10}}>
                         <Row size={12} style={{margin: 15}}>
                             <Col sm={12}>
-                                <TextSelectPaymentStatus>
-                                    Select payment status
-                                </TextSelectPaymentStatus>
-                                <TextListPaymentStatus style={{marginTop: 10}}>Make full payment</TextListPaymentStatus>
+                                {/* <Button title="Open" onPress={this.handleBottomSheetAction} />*/}
+                              
+                                    <TextSelectPaymentStatus>
+                                        Select payment status
+                                    </TextSelectPaymentStatus>
+                                
+                                <TouchableHighlight style={{ color:'blue'  }}>
+                                    <TextListPaymentStatus 
+                                        style={{marginTop: 10}}
+                                        onPress={() => this.handleBottomSheetAction()}
+                                    >
+                                        Make full payment
+                                    </TextListPaymentStatus>
+                                </TouchableHighlight>
                                 <TextListPaymentStatus style={{marginTop: 10}}>Make a deposit payment</TextListPaymentStatus>
                                 <TextListPaymentStatus style={{marginTop: 10}}>Not yet paid</TextListPaymentStatus>
                             </Col>
                         </Row>
                     </CardView>
                 </ScrollView>
+
+                {/*  
+                
+                    <Entypo name="spreadsheet" color="#43a047" size={24} /> 
+                    <MaterialCommunityIcons name="folder" color="grey" size={24} />
+                      <MaterialCommunityIcons
+                                    name="cloud-upload"
+                                    color="grey"
+                                    size={24}
+                                />
+
+                    *******************
+                    Text Modal Payment Via Cash : 
+                        Header : Retrieve the cash 
+                        Content : Make sure you have retrieve & re-count the cash before you proceed
+                
+                */}
+                <BottomSheet
+                    title="Make full payment via "
+                    ref={(ref: BottomSheet) => {
+                        this.bottomSheet = ref
+                    }}
+                    itemDivider={3}
+                    backButtonEnabled={true}
+                    coverScreen={false}
+                    titleFontFamily="TraboRobotoMedium"
+                    fontFamily="TraboRobotoMedium"
+                    options={[
+                        
+                        {
+                            // title: 'Cash',
+                            title: (
+                                <TextCash />
+                            ),
+                            icon: (
+                                <OptionRadioButton 
+                                    onPress = {(e) => this.handlePaymentViaCash(e)}
+                                />
+                            ),
+                            onPress: (e) => this.handlePaymentViaCash(e)
+                        },
+                        {
+                            title: 'Bank Transfer & Retail Payment',
+                            fontFamily:'TraboRobotoMedium',
+                            icon: (
+                                <OptionRadioButton />
+                            ),
+                            onPress: () => null
+                        },
+                        {
+                            title: 'Credit Card',
+                            fontFamily:'TraboRobotoMedium',
+                            icon: (
+                                <OptionRadioButton />
+                            ),
+                            onPress: () => null
+                        },
+                        
+                    ]}
+                    isOpen={false}
+                />
             </View>
         );
     }
-}
+};
 
 const RowCalculatePrice = styled.View`
     flexDirection: row-reverse;
@@ -209,9 +338,22 @@ const TextSelectPaymentStatus = styled.Text`
 
 const TextListPaymentStatus = styled.Text`
     font-family: 'TraboRobotoMedium';
-    font-size: ${height('3.2%')};
+    font-size: ${height('3.1%')};
     color: black;
 `;
+
+export const OptionRadioButton = ({onPress}) => (
+    <MKRadioButton
+        checked={false}
+        group={this.radioGroup}
+        onPress={onPress}
+    />
+    
+);
+
+export const TextCash = () => (
+    <Text>Cash * </Text>
+);
 
 const mapStateToProps = (state) => ({
     login: state,

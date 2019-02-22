@@ -58,3 +58,7 @@ export const GET_PRODUCT_DETAIL_SELECTED = asyncStatusBookingAvailable("Get Prod
 //* Booking - Post Booking - {{url}}/product/book
 export const SENDING_DATA_FORM_OF_BOOKING_REQUEST = "Request POST Data Form of Booking, status... ";
 export const STATUS_DATA_FORM_OF_BOOKING = asyncStatusBookingAvailable("Status POST Data Form of Booking ... ")
+
+//*Booking - Post Calculate Price Booking
+export const SENDING_DATA_CALCULATE_PRICE_BOOKING_REQUEST = "Request POST Data Calculate Price, status..."
+export const RESULT_DATA_CALCULATE_PRICE_BOOKING = asyncStatusBookingAvailable("Status POST Data from Calculate Price Booking, status... ");
