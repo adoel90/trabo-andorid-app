@@ -1,9 +1,9 @@
 
 import { createDrawerNavigator } from 'react-navigation';
-
-// import MyDrawerHomeScreen from '../screens/MyDrawerNotificationsScreen';
-// import MyDrawerNotificationsScreen from '../screens/MyDrawerHomeScreen';
 import HeaderStack from './HeaderStack';
+import BookingPaymentScreen from '../screens/BookingPaymentScreen';
+import ExploreFlexDirection from '../screens/ExploreFlexDirection';
+import ExploreResponsive from '../screens/ExploreResponsive';
 
 // createDrawerNavigator(RouteConfigs, DrawerNavigatorConfig) ==> https://reactnavigation.org/docs/en/drawer-navigator.html
 export default createDrawerNavigator(
@@ -12,7 +12,16 @@ export default createDrawerNavigator(
     {
         Booking: {
             screen: HeaderStack
-        }   
+        },
+        Explore: {
+            screen: ExploreFlexDirection
+        },
+        ExploreResponsive: {
+            screen: ExploreResponsive
+        },
+        BookingPayment: {
+            screen: BookingPaymentScreen
+        }
     },
 
     /* DrawerNavigatorConfig */

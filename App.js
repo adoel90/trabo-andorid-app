@@ -27,8 +27,8 @@ import recentOrderMiddleware from './middleware/booking_recent';
 
 import bookingProductMiddleware from './middleware/booking_product';
 import bookingProductDateAvailableMiddleware from './middleware/booking_product_date_available';
-import bookingProductDetailMiddleware from './middleware/booking_product_detail'
-
+import bookingProductDetailMiddleware from './middleware/booking_product_detail';
+// import postFormBookingMiddleware from './middleware/booking_post';
 
 import { rootSaga } from './middleware-saga/index';
 
@@ -38,13 +38,13 @@ const store = Reactotron.createStore(rootReducer, applyMiddleware(
                                                       sagaMiddleware,
                                                       userMiddleware, 
                                                       loginMiddleware, 
-                                                      // localStorageMiddleware,
                                                       bookingProductMiddleware,
                                                       recentOrderMiddleware,
                                                       bookingProductDateAvailableMiddleware,
-                                                      bookingProductDetailMiddleware
+                                                      bookingProductDetailMiddleware,
+                                                      // postFormBookingMiddleware
                                                       ));
-                                                      // bookCalenderAvailableMiddleware
+                                                      
 
 sagaMiddleware.run(rootSaga);
 

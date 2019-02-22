@@ -103,7 +103,7 @@ class BookingScreen extends React.Component {
     }
 
     if(prevProps.recentOrder != recentOrder){
-      console.log("Recent Order : ", recentOrder);
+      // console.log("Recent Order : ", recentOrder);
 
       this.setState({
         ...this.state,
@@ -120,7 +120,7 @@ class BookingScreen extends React.Component {
       const { selectedStartDate, selectedSDateSecondVersion} = this.state;
       // this.props.navigation.navigate('Authentication');
       
-      console.log("Selected date : ", selectedStartDate )
+      // console.log("Selected date : ", selectedStartDate )
       this.props.navigation.navigate('InsideBooking', {data: selectedStartDate, secondData: selectedSDateSecondVersion})
     });
   }

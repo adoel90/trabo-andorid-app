@@ -4,7 +4,7 @@ import { URL_API } from '../constants/config-api'
 
 /*
 
-    ***Parameter :
+    ***Parameter Body :
     {
         "client_id":"8",
         "client_secret":"Ea0wMDF3k6LaK59ZrfCCQw5BYcqu89rQbX2RsB9c",

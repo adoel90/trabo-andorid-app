@@ -18,6 +18,8 @@ const bookingProductDetailMiddleware = ({ dispatch }) => (next) => (action) => {
                     const CHILD = "CHILD";
                     const INFANT = "INFANT";
                     const PACKAGE = "package";
+                    const CABIN = "Cabins";
+                    const ENTRANCE = "Entrance";
 
                     const dataProductDetail = {
                         listPaxAdult: {},
@@ -25,9 +27,14 @@ const bookingProductDetailMiddleware = ({ dispatch }) => (next) => (action) => {
                         listPaxInfant:{},
                         nameOfProduct:{},
                         listPackage: [],
+                        listPackageId:[],
 
-                        listAdditionalProducts:[],
-                        listAdditionalProductsDetails:[]
+                        // listAdditionalProducts:[],
+                        // listAdditionalProductsDetails:[],
+                        listCabin:[],
+                        listEntrance:[],
+                        listAdditionalDescription: [],
+                        specialNote: ''
                     };
 
                     console.log("Original Response : ", response.data.response);
@@ -73,37 +80,53 @@ const bookingProductDetailMiddleware = ({ dispatch }) => (next) => (action) => {
                         })
                     };
 
+                    /* listPackageId */
+                    if(response.data.response.packet.length != null){
+                        response.data.response.packet.map((data) => {
+                            if(data.pricing_type === PACKAGE){
+                                data.amount.map((secondDataMapping) => {
 
-                    /* listAdditionalProducts */
+                                    dataProductDetail.listPackageId.push(secondDataMapping.id) // data we need : [{"id": 328500, "qty": 0}]
+                                    
+                                })
+                            }
+                        })
+                    }
+
+                    /* listCabin - listEntrance */
                     if(response.data.response.additional_products.length != null){
 
                         response.data.response.additional_products.map((data) => {
-                            dataProductDetail.listAdditionalProducts.push(data);
+
+                            if(data.name == CABIN){
+                                data.details.map((cabins) => {
+                                    dataProductDetail.listCabin.push(cabins);
+                                })
+                            };
+
+                            if(data.name == ENTRANCE){
+                                data.details.map((entrances) => {
+                                    dataProductDetail.listEntrance.push(entrances);
+                                })
+                            };
                         });
                     };
 
-                     /* listAdditionalProductsDetails */
-                    if(response.data.response.additional_products.length != null){
-                        response.data.response.additional_products.map((detail) => {
-                            
-                            if(detail.details.length != null){
-                                detail.details.map((secondDataMapping) => {
-                                    dataProductDetail.listAdditionalProductsDetails.push(secondDataMapping)     
-                                })
-                            }
-                            // dataProductDetail.listAdditionalProductsDetails = Object.assign(detail, dataProductDetail.listAdditionalProductsDetails )
-                        })
+                    /* listAdditionalDescription */
+                    if(response.data.response.additional_description != null){
+                        if(response.data.response.additional_description.description.length != null){
+
+                            response.data.response.additional_description.description.map((data) => {
+                                dataProductDetail.listAdditionalDescription.push(data); 
+                            })
+                        }
+                    }
+
+                    if(response.data.response.spesial_note != null){
+                        dataProductDetail.specialNote = response.data.response.spesial_note;
                     };
 
-                    
-                    
-                    /*
-                        const object = { last_name: "john", age: 23, city: "London" };
-                        object = Object.assign({ first_name: "Samuel" }, object);
-                        
-                    */
-
-                      dispatch({type: action.payload.next.SUCCESS, payload: dataProductDetail})
+                    dispatch({type: action.payload.next.SUCCESS, payload: dataProductDetail});
                     // dispatch({type: action.payload.next.SUCCESS, payload: response.data.response})
                 
                 } else {
@@ -123,3 +146,10 @@ const bookingProductDetailMiddleware = ({ dispatch }) => (next) => (action) => {
 }; 
 
 export default bookingProductDetailMiddleware;
+
+
+/*
+    const object = { last_name: "john", age: 23, city: "London" };
+    object = Object.assign({ first_name: "Samuel" }, object);
+    
+*/

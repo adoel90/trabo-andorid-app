@@ -6,7 +6,7 @@ import {
   TouchableHighlight,
   StyleSheet,
   Alert,
-  TextInput,
+  AsyncStorage,
   CheckBox,
   ScrollView
 } from 'react-native';
@@ -23,6 +23,7 @@ import { Card } from 'react-native-material-ui';
 import { TextField } from 'react-native-material-textfield';
 import PhoneInput from 'react-native-phone-input'
 
+import IconGeneralInActive from '../components/IconGeneralnActive';
 import TextDate from '../components/new_booking/TextDate';
 import TextGeneral from '../components/TextGeneral';
 import TextGeneralBold from '../components/TextGeneralBold';
@@ -30,10 +31,12 @@ import IconGeneral from '../components/IconGeneral';
 import ProductDestination from '../components/booking/ProductDestination';
 
 import { getProductDetail } from '../actions/booking_product_detail';
+import { postFormBooking } from '../actions/booking_post';
 
 class BookingNewFormScreen extends React.Component {
 
   static navigationOptions = {
+
     title: 'New Booking',
     headerTintColor: 'white',
     headerStyle: {
@@ -53,9 +56,11 @@ class BookingNewFormScreen extends React.Component {
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handlePostBookingForm = this.handlePostBookingForm.bind(this);
+    this.increment = this.increment.bind(this);
+    this.decrease = this.decrease.bind(this);
 
     this.state = {
-        phone: '',
+        phone: null,
         name:'',
         email:'',
         specialnotes:'',
@@ -68,7 +73,23 @@ class BookingNewFormScreen extends React.Component {
         amountPaxPriceAdultId:null,
         packet:{},
         listPackages:{},
-        listAdditionalProductsState: {}
+        listPackagesId:{},
+        listCabinsState:{},
+        listEntrances:{},
+        listDescription:{},
+
+        //Interface
+        maxTotalClicks: 10,
+        totalAdult: 1,
+        totalChildren: 0,
+        totalChildrenInfant: 0,
+        totalAmount: 0,
+        specialNotes: '',
+
+        //Phone State
+        valid: "",
+        type: "",
+        value: ""
     }
 
   }
@@ -86,36 +107,31 @@ class BookingNewFormScreen extends React.Component {
     })
 
 
-    action.getProductDetail(paramsFromBookingDateDetail);
-        
+    action.getProductDetail(paramsFromBookingDateDetail);  
   }
 
   componentDidUpdate(prevProps){
   
     const { navigation, productDetail } = this.props;
-    // const { listPackages } = this.state;
+    // const { listPackages } =listEntrances this.state;
 
     if(prevProps.productDetail != productDetail){
-
-      if(productDetail.listPackage != null || productDetail.listPackage.length != null){
-        this.setState({
-          ...this.state,
-          listPackages: productDetail.listPackage
-        })
-      };
-
-      if(productDetail.listAdditionalProducts != null || productDetail.listAdditionalProducts.length != null){
-        this.setState({
-          ...this.setState,
-          listAdditionalProductsState: productDetail.listAdditionalProducts
-        }, () => {
-          console.log(this.state.listAdditionalProductsState);
-          
-        })
-      }
- 
-     
-  
+      if(productDetail.listPackage.length != null || productDetail.listPackageId.length != null ){
+        if(productDetail.listCabin.length != null){
+          if(productDetail.listEntrance.length != null || productDetail.listAdditionalDescription.length != null){
+            
+            this.setState({
+              ...this.state,
+              listPackages: productDetail.listPackage,
+              listCabinsState : productDetail.listCabin,
+              listEntrances : productDetail.listEntrance,
+              listDescription: productDetail.listAdditionalDescription,
+              listPackagesId: productDetail.listPackageId,
+              specialNotes: productDetail.specialNote
+            })
+          }
+        }
+      };  
     };
   };
 
@@ -138,8 +154,85 @@ class BookingNewFormScreen extends React.Component {
   };
 
   handlePostBookingForm = () => {
-    Alert.alert('Post Booking ...')
-  }
+
+    const { action, navigation } = this.props;
+
+    const { totalAdult, 
+            totalChildren, 
+            totalChildrenInfant, 
+            dateProduct, 
+            codeProduct, 
+            listPackagesId, 
+            name, 
+            email, 
+            phone, 
+            komenk,
+            timeProduct,
+            referral,
+            specialNotes,
+            listDescription,
+            totalAmount
+          } = this.state
+
+    let phoneCode = phone;
+
+   console.log('Starting Post Booking ...');
+
+    let data = {
+      adult: totalAdult ? totalAdult : 0,
+      children: totalChildren ? totalChildren : 0,
+      toddlers: totalChildrenInfant ? totalChildrenInfant : 0,
+      date: dateProduct ? dateProduct : new Date(),
+      product_code: codeProduct ? codeProduct : "Call Administrator to ask your product code",
+      package:  [{"id": 328500, "qty": 0}], // type value : Array - listPackagesId, gw mesti dapetin
+      additional: [{"id": 197, "qty": 0},{"id": 198, "qty": 0},{"id": 201, "qty": 0}], // Array ==> data "additional product di dalam detail, yang "id" not yang "additional_product_id" 
+      user_code: "",  // Dapet dari mana data ini ?
+      promo_code: "satu", // Dapet dari mana data ini ?
+      name: name ? name : "What is your names ? ",
+      phone: this.state.phone.getValue() ? this.state.phone.getValue() : "What is your phone ",
+      email: email ? email : "What is your email ? ",
+      comment: komenk ? komenk : "...",
+      payment_type: "", // Not used
+      customer_code: "",
+      total_amount: 10000, // totalAmount ? totalAmount :  ==> Ini value dapat dari total keseluruhan DUIT
+      operation_time: timeProduct ? timeProduct : "12:00 AM",
+      phone_code: this.state.phone.getCountryCode() ? this.state.phone.getCountryCode() : "62",
+      referral: referral ? referral : "",
+      // additional_description: listDescription ? listDescription : null // Array
+      additional_description:{
+        "description":[{"heading":"A","content" :["Laundry Service↵✓  Shaded diving deck↵✓  Camera Station↵✓  Daily housekeeping↵✓  Audio & video entertainment↵✓  Library↵✓  Air Conditioned saloon↵✓  Aircon Cabins↵✓  Sun Deck↵✓  Indoor Saloon↵✓  Non-Diver (Snorkeler) Friendly↵✓  Warm Water Showers↵✓  Separate rinse for u/w camera↵✓  Custom built for diving↵✓  Charging stations↵✓  En-Suite bathrooms"]},{"heading":"C","content" :["123","llll"]}],
+      }
+      // "pax_details":[{"heading":"B","content" :[null]}]
+
+    };
+
+    console.log(data);
+    action.postFormBooking(data);
+    navigation.navigate('BookingPayment');
+
+    
+  };
+
+  increment = (e) => {
+      // const { totalClicks } = this.state;
+      e.preventDefault();
+      this.setState({ 
+          ...this.state,
+          totalClicks: this.state.totalClicks + 1 
+      });
+  };
+
+  decrease = (e) => {
+      // const { totalClicks } = this.state;
+      e.preventDefault();
+
+      this.setState({
+          ...this.state,
+          totalClicks: this.state.totalClicks - 1
+      })
+
+  };
+
 
   render() {
 
@@ -153,8 +246,14 @@ class BookingNewFormScreen extends React.Component {
           timeProduct,
           dateProduct,
           listPackages,
-          listAdditionalProductsState
-          
+          listCabinsState,
+          listEntrances,
+          listDescription,
+          totalAdult,
+          totalChildren,
+          totalChildrenInfant,
+          maxTotalClicks,
+          specialNotes
         } = this.state;
   
     return (
@@ -168,7 +267,6 @@ class BookingNewFormScreen extends React.Component {
                       <ProductDestination value={productDetail.nameOfProduct != null ? productDetail.nameOfProduct : "Where is your Destination"} fontSize="28px" />
                   </Col>
               </Row>
-
               <Row size={12}>
                   <Col sm={6} style={{padding: 5}}>
                       <Text color="gray" style={{fontFamily: 'TraboRobotoMedium'}}> Date</Text>
@@ -187,7 +285,7 @@ class BookingNewFormScreen extends React.Component {
               </Row>
           </CardView>
 
-          {/* #2 */}
+          {/* #2 NAME CUSTOMER, PHONE, & EMAIL */}
           <CardView>
               <Row size={12}>
                 <Col sm={12}>
@@ -196,6 +294,7 @@ class BookingNewFormScreen extends React.Component {
                       value={name}
                       // labelPadding={3}
                       labelTextStyle={{fontFamily:'TraboRobotoMedium'}}
+                      // onChangeText={(e) => this.handleInputChange(e, 'data')}
                       onChangeText={ (name) => this.setState({ name }) }
                       animationDuration={150}
                       // style={{marginLeft:30}}
@@ -207,11 +306,14 @@ class BookingNewFormScreen extends React.Component {
                   <Col sm={12}>
                       {/* <TextGeneral value="Phone Number" fontSize="14" style={{marginLeft:10, marginBottom: 10, paddingLeft: 10}}/> */}
                       <PhoneInput 
-                        ref='phone'
+                        // ref='phone'
+                        ref = { ref => { this.state.phone = ref; }}
                         style={{margin:5}}
-                        initialCountry="US"
-                        value=" Phone Number"
-                      
+                        // initialCountry="US"
+                        // value="Phone Number"
+                        textProps={{placeholder: 'Phone Number'}}
+                        // onChangePhoneNumber={(phone) => this.setState({phone})}
+                        
                       />
                   </Col>
               </Row>
@@ -253,15 +355,22 @@ class BookingNewFormScreen extends React.Component {
                 <TextGeneral 
                   value={ productDetail.listPaxAdult ? "Adults ( IDR " +  numeral(productDetail.listPaxAdult.amount).format('0,0') + " )" : "..."} 
                   fontSize="17px" />
+                {/** <TextGeneral value={" Age " + productDetail.listPaxAdult.age_from + " - " + productDetail.listPaxAdult.age_to } fontSize="11px" />*/}
               </Col>
               <Col sm={1}>
-                <IconGeneral name="remove-circle" />
+                
+                  <IconGeneral name="remove-circle" onPress={(e) => this.decrease(e)}/>
+                
               </Col>
               <Col sm={2}>
-                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
+                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>{ totalAdult }</Text>
               </Col>
               <Col sm={1}>
-                <IconGeneral name="control-point" />
+                {
+                  totalAdult === maxTotalClicks ? 
+                    <IconGeneralInActive name="control-point" /> : <IconGeneral name="control-point" onPress={(e) => this.increment(e)} />
+                }
+                
               </Col>
             </Row>
 
@@ -269,14 +378,19 @@ class BookingNewFormScreen extends React.Component {
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
                 <TextGeneral value={productDetail.listPaxChild ? "Children ( IDR " + numeral(productDetail.listPaxChild.amount).format('0,0') + " )" : "..."} fontSize="17px" />
+                
               </Col>
               <Col sm={1}>
-                <IconGeneral name="remove-circle" />
+                <IconGeneral name="remove-circle"/>
               </Col>
               <Col sm={2}>
-                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>0</Text>
+                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>{ totalChildren }</Text>
               </Col>
               <Col sm={1}>
+                {/*
+                  totalChildren === maxTotalClicks ? 
+                    <IconGeneralInActive name="control-point" /> : <IconGeneral name="control-point" onPress={(e) => this.increment(e)} />
+                */}
                 <IconGeneral name="control-point" />
               </Col>
             </Row>
@@ -285,15 +399,20 @@ class BookingNewFormScreen extends React.Component {
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
                 <TextGeneral value={productDetail.listPaxInfant ? "Children ( IDR " + numeral(productDetail.listPaxInfant.amount).format('0,0') + " )" : "..."} fontSize="17px" />
+                
               </Col>
               <Col sm={1}>
                 <IconGeneral name="remove-circle" />
               </Col>
               <Col sm={2}>
-                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>0</Text>
+                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>{ totalChildrenInfant }</Text>
               </Col>
               <Col sm={1}>
                 <IconGeneral name="control-point" />
+                {/*
+                  totalChildrenInfant === maxTotalClicks ? 
+                    <IconGeneralInActive name="control-point" /> : <IconGeneral name="control-point" onPress={(e) => this.increment(e)} />
+                */}
               </Col>
             </Row>
           </CardView>
@@ -303,6 +422,8 @@ class BookingNewFormScreen extends React.Component {
             
             {
               listPackages.length != null ? listPackages.map((data, i) => {
+                // console.log("List Packages : ", data)
+
                 return (
                   <Row key={i} size={12} style={{margin: 12}} > 
                     <Text style={{fontFamily: 'TraboRobotoMedium'}} color="gray">Package {"\n"}{"\n"}</Text>
@@ -336,8 +457,6 @@ class BookingNewFormScreen extends React.Component {
             
 
             {/**
-            
-
             <Row size={12} style={{margin: 12}}>
               <Col sm={8}>
                 <TextGeneral value="Raja Ampat South-North" fontSize="17px" />
@@ -369,24 +488,78 @@ class BookingNewFormScreen extends React.Component {
           {/* #5 ADDITIONAL PRODUCT*/}
           <CardView>
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
+            
+            {/* CABIN */}
+            <Row size={12} style={{marginLeft: 12}}>
+              
+              <Col sm={12}>
+                <TextGeneral value="Cabin" fontSize="18px" />
+              </Col>
+            </Row>
+              
 
-            {
-              listAdditionalProductsState.length != null ? listAdditionalProductsState.map((data, i) => {
-                console.log("Llist Additional Product State : ", data);
-                
-                return (
-                  <Row key={i} size={12} style={{marginLeft: 12}}>
-                    <Col sm={12}>
-                      <TextGeneral value={data.name} fontSize="18px" />
-                    </Col>
-                    {
-                      // In here, if no error, i put list details in here
-                    }
-                  </Row>
-                )
+              {
+                listCabinsState.length != null ? listCabinsState.map((cabins, i) => {
+                  
+                  return (
+                    <Row key={i} size={12} style={{margin: 12}}>
+                      <Col sm={8}>
+                        <TextGeneral value={cabins.description} fontSize="17px" />
+                        <TextGeneral value={"IDR " + cabins.amount} fontSize="14px" />
+                        <TextGeneral value={"Remark: " + cabins.remark} fontSize="12px" />
+                        <TextGeneral value={"Maximum per booking = " + cabins.max_per_booking} fontSize="12px" />
+                      </Col>
+      
+                      <Col sm={1}>
+                        <IconGeneral name="remove-circle" />
+                      </Col>
+        
+                      <Col sm={2}>
+                        <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
+                      </Col>
+        
+                      <Col sm={1}>
+                        <IconGeneral name="control-point" />
+                      </Col>
+                    </Row>
+                  )
+                }) : null
+              }
 
-              }) : null
-            }
+              {/* ENTRANCE  */}
+              <Row size={12} style={{marginLeft: 12}}>
+                <Col sm={12}>
+                  <TextGeneral value="Entrance" fontSize="18px" />
+                </Col>
+              </Row>
+
+              {
+                listEntrances.length != null ? listEntrances.map((entrance, i) => {
+                  return (
+                    <Row key={i} size={12} style={{margin: 12}}>
+                      <Col sm={8}>
+                        <TextGeneral value={entrance.description} fontSize="17px" />
+                        <TextGeneral value={"IDR " + entrance.amount} fontSize="14px" />
+                        <TextGeneral value={"Remark: " + entrance.remark} fontSize="12px" />
+                        <TextGeneral value={"Maximum per booking = " + entrance.max_per_booking} fontSize="12px" />
+                      </Col>
+      
+                      <Col sm={1}>
+                        <IconGeneral name="remove-circle" />
+                      </Col>
+        
+                      <Col sm={2}>
+                        <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
+                      </Col>
+        
+                      <Col sm={1}>
+                        <IconGeneral name="control-point" />
+                      </Col>
+                    </Row>
+                  )
+                }) : null
+              }
+          
 
              {/* 
               <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
@@ -436,6 +609,23 @@ class BookingNewFormScreen extends React.Component {
           {/* #6 ADDITIONAL DESCRIPTION */}
           <CardView>
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Description</Text>
+            
+            {
+              listDescription.length != null ? listDescription.map((data, i) => {
+                return(
+                  <Row key={i} size={12} style={{margin: 12}}>
+                    <Col sm={12}>
+                      <TextGeneral value={data.heading} fontSize="18px" />
+                      <TextGeneral value={data.items[0]} fontSize="17px" />
+                    
+                    </Col>
+                  </Row>
+                )
+              }) : null
+            }
+            
+            
+            {/** 
             <Row size={12} style={{margin: 12}}>
               <Col sm={12}>
                 <TextGeneral value="Raja Ampat - 8 Days Day One : Sorong" fontSize="18px" />
@@ -444,6 +634,8 @@ class BookingNewFormScreen extends React.Component {
               
               </Col>
             </Row>
+            */}
+
           </CardView>
 
           {/** #7 SPECIAL NOTES */}
@@ -460,6 +652,9 @@ class BookingNewFormScreen extends React.Component {
                     // style={{marginLeft:30}}
                     containerStyle={{marginLeft:7}}
                 />  
+                {/* <Text>{specialNotes}</Text> */}
+
+
               </Col>
             </Row>
           </CardView>
@@ -494,8 +689,8 @@ class BookingNewFormScreen extends React.Component {
             </Row>
 
             <Row size={12}>
-              <Col sm={7}><Text></Text></Col>
-              <Col sm={5} style={{marginRight: 10}}>
+              
+              <Col sm={12} style={{margin: 30}}>
                 <Button 
                   style={{marginTop: 17, marginBottom: 10}}
                   color="#f16724"
@@ -523,19 +718,21 @@ const styles = StyleSheet.create({
 const CardView = styled.View`
   background: white;
   border-width: 1;
-  border-radius: 2;
+
   border-color: #ddd;
   border-bottom-width: 0;
   shadow-color: #000;
   shadow-offset: {width: 0, height: 2};
   shadow-opacity: 0.8;
-  shadow-radius: 2;
+
   elevation: 1;
   margin-left: 0;
   margin-right: 0;
   margin-top: 4;
   margin-bottom:7; 
 `
+// border-radius: 2;
+// shadow-radius: 2;
 
 const mapStateToProps = (state) => ({
   login: state.login.data,
@@ -543,7 +740,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  action: bindActionCreators({getProductDetail}, dispatch)
+  action: bindActionCreators({getProductDetail, postFormBooking}, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(BookingNewFormScreen);

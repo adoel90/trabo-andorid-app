@@ -2,18 +2,16 @@ import React from 'react';
 import styled from 'styled-components/native';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-const IconGeneral = ({name,size, onPress}) => (
+const IconGeneralInActive = ({name,size, onPress}) => (
 
    
     <Icon 
-        // name="person-outline" 
         name={name}
         size={20}
         // style={{ marginRight: 15, marginTop: 4, bottom:0 }}
         // style={[styles, textStyles]}
-        color="#f16724"
-        onPress={onPress}
+        color="gray"
     />
 )
 
-export default IconGeneral;
+export default IconGeneralInActive;

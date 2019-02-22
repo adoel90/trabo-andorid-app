@@ -4,6 +4,7 @@ import { createStackNavigator, DrawerActions } from 'react-navigation';
 import {Text, View, StyleSheet} from 'react-native';
 import BookingDateDetailScreen from '../screens/BookingDateDetailScreen';
 import BookingNewFormScreen from '../screens/BookingNewFormScreen';
+import BookingPaymentScreen from '../screens/BookingPaymentScreen';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // import { LinearGradient } from 'expo';
@@ -56,6 +57,9 @@ export default createStackNavigator (
         },
         BookingNewForm: {
             screen: BookingNewFormScreen
+        },
+        BookingPayment: {
+            screen: BookingPaymentScreen
         }
     },
 

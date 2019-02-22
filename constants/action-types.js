@@ -1,6 +1,17 @@
-
-
 const asyncActionTypeUser = (type) => ({
+    PENDING: `[API] ${type}_PENDING`,
+    SUCCESS: `[API] ${type}_SUCCESS`,
+    ERROR: `[API] ${type}_ERROR`,
+});
+
+const asyncActionTypeLogin = (type) => ({
+    PENDING: `${type} PENDING !`,
+    SUCCESS: `${type} SUCCESS !`,
+    ERROR: `${type} ERROR !`,
+});
+
+//*BOOKING
+const asyncStatusBookingAvailable= (type) => ({
     PENDING: `[API] ${type}_PENDING`,
     SUCCESS: `[API] ${type}_SUCCESS`,
     ERROR: `[API] ${type}_ERROR`,
@@ -19,31 +30,18 @@ export const POST_UPDATE_USER = asyncActionTypeUser('[Middleware -> Reducer] Api
 //CRUD WITH REQRES API
 export const ADD_USER = '[Action] Add user & job ...';
 
-const asyncActionTypeLogin = (type) => ({
-    PENDING: `${type} PENDING !`,
-    SUCCESS: `${type} SUCCESS !`,
-    ERROR: `${type} ERROR !`,
-});
 
+// LOGIN API TRABO
 export const API_POST_USER_LOGIN_REQUEST = "[Action - Middleware - Action] Api Post User Login Request...";
 export const GET_ACCESS_TOKEN_USER_LOGIN = asyncActionTypeLogin("[Middleware -> Reducer] Api Get Access Token user to login... ");
-
-//*BOOKING
-const asyncStatusBookingAvailable= (type) => ({
-    PENDING: `[API] ${type}_PENDING`,
-    SUCCESS: `[API] ${type}_SUCCESS`,
-    ERROR: `[API] ${type}_ERROR`,
-});
 
 //* Booking Calendar API 
 export const BOOKING_CALENDAR_AVAILABLE_REQUEST = "Request Booking Calendar Available, status... ";
 export const GET_BOOKING_CALENDAR_AVAILABLE = asyncStatusBookingAvailable("Get Booking Calendar Available, status ...");
 
-
 //* Booking Product API
 export const BOOKING_PRODUCT_REQUEST = "Request Booking Product Available, status... "
 export const GET_BOOKING_PRODUCT = asyncStatusBookingAvailable("Get Booking Product, status... ")
-
 
 //* Booking - Recent Order API
 export const RECENT_ORDER_REQUEST = "Request Recent Order, status... "
@@ -56,3 +54,7 @@ export const GET_PRODUCT_WITH_DATE_AVAILABLE = asyncStatusBookingAvailable("Get 
 //* Booking - Product Detail - {{url}}/product/A-09227133?date=2019-02-17&time=05:30 AM
 export const PRODUCT_DETAIL_SELECTED_REQUEST = "Request Product Detail Selected, status ... ";
 export const GET_PRODUCT_DETAIL_SELECTED = asyncStatusBookingAvailable("Get Product Detail, status...");
+
+//* Booking - Post Booking - {{url}}/product/book
+export const SENDING_DATA_FORM_OF_BOOKING_REQUEST = "Request POST Data Form of Booking, status... ";
+export const STATUS_DATA_FORM_OF_BOOKING = asyncStatusBookingAvailable("Status POST Data Form of Booking ... ")
