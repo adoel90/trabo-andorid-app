@@ -52,35 +52,42 @@ class BookingDateDetailScreen extends React.Component {
     this.state = {
       headerDate: null,
       dataConsumeApi: null,
-      listProductAndCode: {}
+      listProductAndCode: {},
+      accessToken: ''
     }
 
   }
 
   componentDidMount(){
     const { navigation, action } = this.props;
-    const dateParamsSecond = navigation.getParam('secondData');
+    const dateParamsFromBookingScreen = navigation.getParam('secondData');
+    const accessTokenMobileFromBookingScreen = navigation.getParam('thirdDataIsToken');
     
-
-    let data ={
-      date: dateParamsSecond
+    this.setState({
+      ...this.state,
+      accessToken: accessTokenMobileFromBookingScreen
+    });
+    
+    //*******************
+    let data = {
+      date: dateParamsFromBookingScreen,
+      access_token: accessTokenMobileFromBookingScreen
     }
     action.getProductWithDateAvalaible(data);
     
-
-  }
+  };
 
   componentDidUpdate(prevProps){
   
     const { navigation, productAvailable  } = this.props;
     const dateParams = navigation.getParam('data');
-    const dateParamsSecond = navigation.getParam('secondData');
+    const dateParamsFromBookingScreen = navigation.getParam('secondData');
 
     if(prevProps.navigation != navigation ){
       this.setState({
         ...this.state,
         headerDate: dateParams,
-        dataConsumeApi: dateParamsSecond
+        dataConsumeApi: dateParamsFromBookingScreen
       })
     };
 
@@ -100,8 +107,8 @@ class BookingDateDetailScreen extends React.Component {
   handleNewBookingFillForm = (e, data) => {
     e.preventDefault();
     const { action, navigation } = this.props;
-    navigation.navigate('BookingNewForm', { data: data});
-    
+    const { accessToken } = this.state;
+    navigation.navigate('BookingNewForm', { data: data, access_token: accessToken});
   };
 
   render() {
@@ -239,7 +246,8 @@ const CardView = styled.View`
   margin-right: 0;
   margin-top: 4;
   margin-bottom:7; 
-`
+`;
+
 
 const mapStateToProps = (state) => ({
   login: state.login.data,

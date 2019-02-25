@@ -1,7 +1,7 @@
 
 import { createDrawerNavigator } from 'react-navigation';
 import HeaderStack from './HeaderStack';
-import BookingPaymentScreen from '../screens/BookingPaymentScreen';
+import BookingPaymentScreen from '../screens/Payment/BookingPaymentScreen';
 import ExploreFlexDirection from '../screens/ExploreFlexDirection';
 import ExploreResponsive from '../screens/ExploreResponsive';
 

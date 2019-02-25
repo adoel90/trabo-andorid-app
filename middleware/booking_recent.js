@@ -2,12 +2,21 @@
 import axios from 'axios'
 
 
-import { RECENT_ORDER_REQUEST, GET_RECENT_ORDER } from '../constants/action-types';
+import { RECENT_ORDER_REQUEST } from '../constants/action-types';
 
 
 const recentOrderMiddleware = ({ dispatch }) => (next) => (action) => {
 
     
+    const body = {};
+    const headers =  {
+        'Authorization' : action.access_token != null ? "Bearer " + action.access_token : "Bearer : Where is your token ? ",
+        'Accept': "application/json",
+        'Content-Type' : "application/json"
+
+    };
+
+    axios.defaults.headers.common = headers;
 
     if(action.type === RECENT_ORDER_REQUEST ){
         // console.log(action)

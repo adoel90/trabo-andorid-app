@@ -97,6 +97,7 @@ class BookingNewFormScreen extends React.Component {
   componentDidMount(){
     const { navigation, action } = this.props;
     const paramsFromBookingDateDetail = navigation.getParam('data');
+    const accessTokenMobile = navigation.getParam('access_token')
     // console.log(paramsFromBookingDateDetail);
 
     this.setState({
@@ -106,8 +107,13 @@ class BookingNewFormScreen extends React.Component {
       codeProduct: paramsFromBookingDateDetail.code
     })
 
+    let data = {
+      params: paramsFromBookingDateDetail,
+      access_token: accessTokenMobile
+    }
 
-    action.getProductDetail(paramsFromBookingDateDetail);  
+
+    action.getProductDetail(data);  
   }
 
   componentDidUpdate(prevProps){

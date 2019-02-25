@@ -16,11 +16,9 @@ class AuthenticationLoaderScreen extends React.Component{
   }
 
   _bootstrapAsync = async () => {
-    // const accessToken = await AsyncStorage.getItem('accessToken');
-    // this.props.navigation.navigate(accessToken ? 'Drawer' : 'Authentication');
     this.props.navigation.navigate('Authentication');
 
-  }
+  };
   
   render() {
     return (

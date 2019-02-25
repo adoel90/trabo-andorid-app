@@ -35,7 +35,7 @@ import DescriptionId from '../components/booking/DescriptionId';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getListUser } from '../actions/user';
+// import { getListUser } from '../actions/user';
 import { getBookingCalendarAvailable } from '../actions/booking_calender_available'
 
 class BookingScreen extends React.Component {
@@ -46,7 +46,9 @@ class BookingScreen extends React.Component {
 
   constructor(props){
     
-    super(props)
+    super(props);
+    this.onDateChange = this.onDateChange.bind(this);
+    this._handleChangeOption = this._handleChangeOption.bind(this);
     
     this.state = {
 
@@ -63,26 +65,35 @@ class BookingScreen extends React.Component {
       dateListAvailable: {},
       selectedStartDate: null,
       selectedSDateSecondVersion: null,
-      recentOrderList: {}
+      recentOrderList: {},
+      accessToken: {}
       
     };
 
-    this.onDateChange = this.onDateChange.bind(this);
-    this._handleChangeOption = this._handleChangeOption.bind(this);
   }
 
 
   componentDidMount(){
     const { action } = this.props;
   
-  }
+  };
 
   componentDidUpdate(prevProps){
 
     const { login, product, availableCalendar, recentOrder } = this.props;
 
     if(prevProps.login != login){
-
+      if(login.token_type != null){
+        this.setState({
+          ...this.state,
+          accessToken: login.access_token
+        },() => {
+          let data = {
+            access_token: this.state.accessToken
+          }
+          AsyncStorage.setItem("accessTokenMobile", JSON.stringify(data))
+        })
+      }
     }
 
     if(prevProps.product != product){
@@ -117,11 +128,14 @@ class BookingScreen extends React.Component {
       selectedStartDate: moment(date).format('ddd, DD MMM YYYY'),
       selectedSDateSecondVersion: moment(date).format('YYYY-MM-DD')
     }, () => {
-      const { selectedStartDate, selectedSDateSecondVersion} = this.state;
+      const { selectedStartDate, selectedSDateSecondVersion, accessToken} = this.state;
       // this.props.navigation.navigate('Authentication');
-      
-      // console.log("Selected date : ", selectedStartDate )
-      this.props.navigation.navigate('InsideBooking', {data: selectedStartDate, secondData: selectedSDateSecondVersion})
+
+      this.props.navigation.navigate('InsideBooking', {
+                                              data: selectedStartDate, 
+                                              secondData: selectedSDateSecondVersion,
+                                              thirdDataIsToken: accessToken
+                                            })
     });
   }
 
@@ -139,8 +153,12 @@ class BookingScreen extends React.Component {
   }
 
   //*Picker or Dropdownlist utilities
-  _handleChangeOption = (value) => {
-  
+  _handleChangeOption = async (value) => {
+
+    const paramsAccessTokenMobile = await AsyncStorage.getItem("accessTokenMobile");
+    const accessTokenMobile = JSON.parse(paramsAccessTokenMobile);
+    // console.log(accessTokenMobile.access_token);
+
     this.setState({
       ...this.state,
       selectedValueDropdownlist: value,
@@ -149,9 +167,11 @@ class BookingScreen extends React.Component {
     }, () => {
 
       const { action } = this.props;
-      console.log(this.state.selectedValueDropdownlist);
-      // action.getBookingCalendarAvailable(selectedValueDropdownlist)
-      // action.getBookingCalendarAvailable()
+      
+      let data = {
+        access_token: accessTokenMobile.access_token
+      }
+      action.getBookingCalendarAvailable(data)
     })
   }
 
@@ -452,7 +472,7 @@ const mapStateToProps = (state) => ({
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  action: bindActionCreators({getListUser, getBookingCalendarAvailable}, dispatch)
+  action: bindActionCreators({getBookingCalendarAvailable}, dispatch)
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(BookingScreen);

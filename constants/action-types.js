@@ -17,6 +17,13 @@ const asyncStatusBookingAvailable= (type) => ({
     ERROR: `[API] ${type}_ERROR`,
 });
 
+//*PAYMENT
+const asyncStatusPayment= (type) => ({
+    PENDING: `[API] ${type}_PENDING`,
+    SUCCESS: `[API] ${type}_SUCCESS`,
+    ERROR: `[API] ${type}_ERROR`,
+});
+
 export const API_POST_USER_REQUEST = '[Middleware] Api POST User Request...';
 export const API_GET_USER_REQUEST = '[Middleware] Api GET User Request...';
 
@@ -62,3 +69,11 @@ export const STATUS_DATA_FORM_OF_BOOKING = asyncStatusBookingAvailable("Status P
 //*Booking - Post Calculate Price Booking
 export const SENDING_DATA_CALCULATE_PRICE_BOOKING_REQUEST = "Request POST Data Calculate Price, status..."
 export const RESULT_DATA_CALCULATE_PRICE_BOOKING = asyncStatusBookingAvailable("Status POST Data from Calculate Price Booking, status... ");
+
+//Booking - Payment - Full Payment Cash
+export const SENDING_DATA_PAYMENT_CASH_REQUEST = "Request POST Payment Cash, status... ";
+export const RESULT_PAYEMENT_CASH = asyncStatusPayment("Status POST Payment Cash, status... ");
+
+//Booking - Payment - Full Payment Via Transfer Bank - {{url}}/payment/xendit/invoice
+export const SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST = "Request POST Payment Transfer Bank, status... ";
+export const RESULT_PAYMENT_TRANSFER_BANK = asyncStatusPayment("Status POST Payment Transfer Bank, status... ");

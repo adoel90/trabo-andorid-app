@@ -46,7 +46,7 @@
 # Add Picker with "styled-component"
 * https://github.com/agutoli/react-styled-select
 
-# Normilized your "state" with :
+# Normalized your "state" with :
 * https://redux.js.org/recipes/structuring-reducers/normalizing-state-shape
 * https://github.com/paularmstrong/normalizr
 
@@ -55,29 +55,40 @@
 * https://medium.com/wix-engineering/the-full-react-native-layout-cheat-sheet-a4147802405c
 * https://facebook.github.io/react-native/docs/layout-props.html
 
-
 # Create your own library React Native
 * https://facebook.github.io/react-native/docs/native-modules-setup
 
 # Customize back button in react-navigation
 * https://github.com/react-navigation/react-navigation/issues/779
 
+# Add Modal Box
+* https://github.com/maxs15/react-native-modalbox   
+
+# Add Slider 
+* https://github.com/jeanregisser/react-native-slider
 
 # Waiting List "Kerjaan":
 * What the color for status name transaction ? 
 * What ? Border bottom in React Native is hard !!!
-* Benerin pantekan "Token" ente dul :
-    - /middleware-saga/booking_calendar_available.js
-    - /middleware/booking_product_date_available.js
 * Icon in "Date Picker"
 * Functional "Date Picker"
 * Add border bottom in "BookingDateDetailScreen.js"
 * In page "New Booking", buat list Additional Product interface yang DINAMIS / Normalized data Additional Product
 * In page "New Booking", buat "NORMALIZED ALL DATA" 
 * Font family TextField Form Booking saat pengisian di buat "Roboto"
+* Payment Transfer via Alfa Mart 
+    - Pembayaran di bawah 5 juta baru bisa di lakukan di AlfaMart
 
+* Font Family in button not work !
+
+
+
+* ****************DONE**********************
 * Add utils "Fungsi 'Rupiah'" ==> DONE
     - http://numeraljs.com/#format
+* Benerin pantekan "Token" ente dul : ==> DONE
+    - /middleware-saga/booking_calendar_available.js ==> DONE
+    - /middleware/booking_product_date_available.js ==> DONE
 * Normalized data "Available Product with Date" ==> DONE, Anwar has thrown those data.
 
      {/* 

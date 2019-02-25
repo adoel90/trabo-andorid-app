@@ -7,8 +7,8 @@ export const getProductWithDateAvalaible = (data) => ({
     payload: {
         url: URL_API + `/mobile/product?date=${data != null ? data.date : ""}`,
         next: GET_PRODUCT_WITH_DATE_AVAILABLE 
-    }
+    },
+    access_token: data.access_token
 });
 
-// {{url}}/product/sales-calendar?date=2019-02-17
 // {{url}}/mobile/product?date=2019-02-27

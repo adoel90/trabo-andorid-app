@@ -1,27 +1,23 @@
 import React from 'react';
-import { View, Button, CheckBox, StyleSheet, Text, ScrollView, TextInput, TouchableHighlight, Alert} from 'react-native';
+import { View, Button, CheckBox, StyleSheet, Text, ScrollView, TextInput, TouchableHighlight, Alert, AsyncStorage, Dimensions} from 'react-native';
 import { connect } from 'react-redux';
+const numeral = require('numeral');
 import { bindActionCreators } from 'redux';
 import {widthPercentageToDP as width, heightPercentageToDP as height} from 'react-native-responsive-screen';
 import {Column as Col, Row} from 'react-native-flexbox-grid';
 import styled from 'styled-components';
-import BottomSheet from 'react-native-js-bottom-sheet'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import Entypo from 'react-native-vector-icons/Entypo'
 import { getPropertyName } from 'css-to-react-native';
-import {
-    getTheme,
-    MKColor,
-    MKRadioButton,
-    setTheme,
-    Checkbox,
-    IconToggle,
-    RadioButton,
-    RadioButtonGroup,
-    Switch,
-  } from 'react-native-material-kit';
+import { MKRadioButton } from 'react-native-material-kit';
+import { Snackbar, Dialog, DialogDefaultActions } from 'react-native-material-ui';    
+import BottomSheet from 'react-native-js-bottom-sheet';
+import Modal from 'react-native-modalbox';
 
-import { postCalculatePriceBooking } from '../actions/booking_post_calculate_price';
+import { postCalculatePriceBooking } from '../../actions/booking_post_calculate_price';
+import { postPaymentCash } from "../../actions/payment_cash";
+
+const screen = Dimensions.get('window');
 
 class BookingPaymentScreen extends React.Component {
 
@@ -48,9 +44,21 @@ class BookingPaymentScreen extends React.Component {
 
         this.handleBottomSheetAction = this.handleBottomSheetAction.bind(this);
         this.handlePaymentViaCash = this.handlePaymentViaCash.bind(this);
+        this.handlePaymentTransferBank = this.handlePaymentTransferBank.bind(this);
+        this.handleButtonModalPaymentCash = this.handleButtonModalPaymentCash.bind(this);
         this.handleCalculatePrice = this.handleCalculatePrice.bind(this);
+        this.handleCloseModal = this.handleCloseModal.bind(this);
         this.state = {
-            active: ''
+            active: '',
+            resultCalculate:null,
+            isVisibleSnackBar: false,
+            accessToken: null,
+
+            //REACT MODAL BOX
+            isOpen: false,
+            isDisabled: false,
+            swipeToClose: true,
+            sliderValue: 0.3
         }
     
     }
@@ -61,39 +69,152 @@ class BookingPaymentScreen extends React.Component {
 
     componentDidUpdate(prevProps){
 
+        const { calculatePrice, paymentCash } = this.props;
+        const { resultCalculate } = this.state;
+
+        if(prevProps.calculatePrice != calculatePrice){
+            
+            this.setState({
+                ...this.state,
+                resultCalculate: calculatePrice
+            });
+
+        };
+
+        if(prevProps.paymentCash != paymentCash){
+            
+            // console.log("Response ", paymentCash)
+            if(paymentCash.response === "success"){
+                this.refs.modal3.close();
+            }else {
+                this.refs.modal3.close();
+                Alert.alert(paymentCash.diagnostic.error_msgs);
+            }
+        };
     };
 
     handleBottomSheetAction = () => {
         this.bottomSheet.open();
     };
 
-    handlePaymentViaCash = (e) => {
-        
-        this.bottomSheet.close();
+    handleCalculatePrice = async (e, data) => {
+
         e.preventDefault();
+        const paramsAccessTokenMobile = await AsyncStorage.getItem("accessTokenMobile");
+        const accessTokenMobile = JSON.parse(paramsAccessTokenMobile);
 
-        Alert.alert("Do you want pay with cash ?")
-    };
+        //*Only want to store "token".
+        this.setState({
+            ...this.state,
+            accessToken: accessTokenMobile
+        });
 
-    handleCalculatePrice = (e, data) => {
+        const { action } = this.props;
 
         let params = {
             adult : 1,
             children : 1,
             toddlers : 0,
             date : "2019-02-27",
-            product_code : "A-09229850",
-            package:[{"id": 328500, "qty": 0}],
-            additional:[{"id": 197, "qty": 0},{"id": 198, "qty": 0},{"id": 201, "qty": 0}],
+            product_code : "A-09231721",
+            package:[{"id": 328495, "qty": 0}],
+            additional:[{"id": 187, "qty": 0},{"id": 188, "qty": 0},{"id": 189, "qty": 0}],
             user_code:"", //92
-            promo_code:"satu"
-        }
+            promo_code:"satu",
+            access_token: accessTokenMobile.access_token
+        };
+
+        action.postCalculatePriceBooking(params);
+    
     };
+
+    handleButtonModalPaymentCash = (e) => {
+        e.preventDefault();
+        const {action} = this.props;
+        const {accessToken } = this.state;
+        // INI W MESTI DAPETIN PAKE ASYNC STORAGE
+
+        const data = {
+            
+            transaction_code:"56713178-25-02-2019-1474",
+            payment_type:"deposit",
+            access_token: accessToken.access_token
+            
+        };
+        action.postPaymentCash(data);
+
+    };
+
+    handlePaymentViaCash = (e) => {
+        
+        this.bottomSheet.close();
+        e.preventDefault();
+        this.refs.modal3.open();
+    };
+
+    handlePaymentTransferBank = (e) => {
+        
+        this.bottomSheet.close();
+        e.preventDefault();
+
+        const {accessToken } = this.state;
+
+        // this.refs.modalTransferBank.open();
+        // this.props.navigation.navigate('BookingPaymentTransferBank',  { data: data, access_token: accessToken});
+        this.props.navigation.navigate('BookingPaymentTransferBank');
+    };
+
+    handleCloseModal = (e) => {
+        e.preventDefault();
+        this.refs.modal3.close()
+    }
 
     render() {
 
+        const { resultCalculate, isVisibleSnackBar } = this.state;
+
         return (
             <View>
+
+                {/** MODAL CONFIRM PAYMENT CASH */}
+                <Modal style={[styles.modal, styles.modal3]} position={"center"} ref={"modal3"}>
+                    <Dialog style={{padding: 10}}>
+                        
+                            <TextHeadingModal>Retrieve the cash </TextHeadingModal>
+                       
+                            <Dialog.Content>
+                                <Text style={{fontFamily:"TraboRobotoMedium"}}>
+                                    Make sure you have retrieve & re-count the cash before you proceed
+                                </Text>
+                            </Dialog.Content>
+                        <Dialog.Actions>
+                            <Row size={7} style={{margin: 12, padding: 5}}>
+                                <Col sm={3}>
+                                    <Button title="Proceed" color="#28d094" onPress={(e) => this.handleButtonModalPaymentCash(e)}></Button>
+                                </Col>
+                                <Col sm={1}></Col>
+                                <Col sm={3}>
+                                    <Button title="Cancel" color="gray" onPress={(e) => this.handleCloseModal(e)}></Button>
+                                </Col>
+                            </Row>
+                            {/**
+                            <DialogDefaultActions
+                                actions={['proceed', 'cancel']}
+                                options={{ ok: { disabled: true } }}
+                                onActionPress={() => {}}
+                            />
+                             */}
+                        </Dialog.Actions>
+                    </Dialog>
+                </Modal>
+
+                {/** MODAL OPTION PAYMENT TRANSFER BANK */}
+                <Modal style={[styles.modal, styles.modalTransferBank]} position={"center"} ref={"modalTransferBank"}>
+                    <Text>Transfer Bank....</Text>
+
+
+                </Modal>
+
                 <ScrollView>
                     <CardView>
                         <RowCalculatePrice>
@@ -101,26 +222,30 @@ class BookingPaymentScreen extends React.Component {
                                 onPress={(e, data) => this.handleCalculatePrice(e, data)}                             
                                 title="CALCULATE PRICE" 
                                 color="#f16724" 
-                                style={{marginTop: 10, marginRght: 10}}></Button>
+                                style={{marginTop: 10, marginRght: 10, fontFamily: 'TraboRobotoMedium'}}></Button>
                         </RowCalculatePrice>
                         <Row size={12} style={{margin: 15}}>
                             <Col sm={12}>
                                 <TextPayment>Payment</TextPayment>
                             </Col>
                         </Row>
-
                         <Row size={12} style={{margin: 15}}>
                             <Col sm={6}>
                                 <TextSubtotalServiceChargeDiscountCommision>
                                     Sub total
                                 </TextSubtotalServiceChargeDiscountCommision>
-                                <TextPaymentCurrency style={{marginTop: 10}}>IDR 131,000,000</TextPaymentCurrency>
+                                {/* sub_total_additions, sub_total_frontend, sub_total_package, sub_total_pax*/}
+                                <TextPaymentCurrency style={{marginTop: 10}}>
+                                    IDR {resultCalculate != null ? numeral(resultCalculate.sub_total_frontend).format('0,0') : "0"}
+                                </TextPaymentCurrency>
                             </Col>
                             <Col sm={6}>
                                 <TextSubtotalServiceChargeDiscountCommision style={{marginRight: 20}}>
                                     Service Charge
                                 </TextSubtotalServiceChargeDiscountCommision>
-                                <TextPaymentCurrency style={{marginTop: 7}}>IDR 50,000</TextPaymentCurrency>
+                                <TextPaymentCurrency style={{marginTop: 7}}>
+                                    IDR {resultCalculate != null ? resultCalculate.service : "0"}
+                                </TextPaymentCurrency>
                             </Col>
                         </Row>
 
@@ -129,13 +254,17 @@ class BookingPaymentScreen extends React.Component {
                                 <TextSubtotalServiceChargeDiscountCommision>
                                     Discount
                                 </TextSubtotalServiceChargeDiscountCommision>
-                                <TextPaymentCurrency style={{marginTop: 7}}>IDR 0</TextPaymentCurrency>
+                                <TextPaymentCurrency style={{marginTop: 7}}>
+                                    IDR {resultCalculate != null ? resultCalculate.discount : "0"}
+                                </TextPaymentCurrency>
                             </Col>
                             <Col sm={6}>
                                 <TextSubtotalServiceChargeDiscountCommision style={{marginRight: 20}}>
                                     Commision
                                 </TextSubtotalServiceChargeDiscountCommision>
-                                <TextPaymentCurrency style={{marginTop: 7}}>IDR 0</TextPaymentCurrency>
+                                <TextPaymentCurrency style={{marginTop: 7}}>
+                                    IDR {resultCalculate != null ? resultCalculate.commission : "0"}
+                                </TextPaymentCurrency>
                             </Col>
                         </Row>
 
@@ -150,7 +279,7 @@ class BookingPaymentScreen extends React.Component {
                         <Row size={12} style={{marginLeft:15,marginTop: 0}}>
                             <Col sm={12}>
                                 <TextTotalCurrency>
-                                    IDR 131,050,000
+                                    IDR {resultCalculate != null ? numeral(resultCalculate.total_frontend).format('0,0') : "0"}
                                 </TextTotalCurrency>
                             </Col>
                         </Row>
@@ -179,7 +308,7 @@ class BookingPaymentScreen extends React.Component {
                                 />
                             </Col>
                             <Col sm={4}>
-                                <Button title="CHECK" color="#f16724" style={{fontFamily: 'TraboRobotoMedium', smarginLeft: 5,marginTop: 15, marginRight:5 }}></Button>
+                                <Button title="CHECK" color="#f16724" style={{fontFamily: 'TraboRobotoMedium', smarginLeft: 5,marginTop: 15, marginRight:5 }}>CHECK</Button>
                             </Col>
                         </Row>
                     </CardView>
@@ -188,13 +317,11 @@ class BookingPaymentScreen extends React.Component {
                     <CardView style={{marginTop: 10}}>
                         <Row size={12} style={{margin: 15}}>
                             <Col sm={12}>
-                                {/* <Button title="Open" onPress={this.handleBottomSheetAction} />*/}
-                              
                                     <TextSelectPaymentStatus>
                                         Select payment status
                                     </TextSelectPaymentStatus>
                                 
-                                <TouchableHighlight style={{ color:'blue'  }}>
+                                <TouchableHighlight>
                                     <TextListPaymentStatus 
                                         style={{marginTop: 10}}
                                         onPress={() => this.handleBottomSheetAction()}
@@ -206,25 +333,20 @@ class BookingPaymentScreen extends React.Component {
                                 <TextListPaymentStatus style={{marginTop: 10}}>Not yet paid</TextListPaymentStatus>
                             </Col>
                         </Row>
+
+                        
                     </CardView>
+
+                    
+
+                      {/** 
+                        
+                        MODAL CONFIRM WHEN PAYMENT CASH 
+                        <Snackbar visible={isVisibleSnackBar} message="Calculate price, success !" onRequestClose={() => this.setState({ isVisibleSnackBar: false })} />
+
+                    */}
                 </ScrollView>
 
-                {/*  
-                
-                    <Entypo name="spreadsheet" color="#43a047" size={24} /> 
-                    <MaterialCommunityIcons name="folder" color="grey" size={24} />
-                      <MaterialCommunityIcons
-                                    name="cloud-upload"
-                                    color="grey"
-                                    size={24}
-                                />
-
-                    *******************
-                    Text Modal Payment Via Cash : 
-                        Header : Retrieve the cash 
-                        Content : Make sure you have retrieve & re-count the cash before you proceed
-                
-                */}
                 <BottomSheet
                     title="Make full payment via "
                     ref={(ref: BottomSheet) => {
@@ -245,15 +367,19 @@ class BookingPaymentScreen extends React.Component {
                             icon: (
                                 <OptionRadioButton 
                                     onPress = {(e) => this.handlePaymentViaCash(e)}
+                                    // onPress={() => this.refs.modal3.open()}
                                 />
                             ),
                             onPress: (e) => this.handlePaymentViaCash(e)
+                            // onPress: () => this.refs.modal3.open()
                         },
                         {
                             title: 'Bank Transfer & Retail Payment',
                             fontFamily:'TraboRobotoMedium',
                             icon: (
-                                <OptionRadioButton />
+                                <OptionRadioButton 
+                                    onPress = {(e) => this.handlePaymentTransferBank(e)}
+                                />
                             ),
                             onPress: () => null
                         },
@@ -269,6 +395,8 @@ class BookingPaymentScreen extends React.Component {
                     ]}
                     isOpen={false}
                 />
+
+              
             </View>
         );
     }
@@ -342,28 +470,55 @@ const TextListPaymentStatus = styled.Text`
     color: black;
 `;
 
+const TextHeadingModal = styled.Text`
+    font-family: 'TraboRobotoMedium';
+    font-size: ${height('3.3%')};
+    color: black;
+    margin-left: 22;
+`;
+
 export const OptionRadioButton = ({onPress}) => (
     <MKRadioButton
         checked={false}
         group={this.radioGroup}
         onPress={onPress}
     />
-    
 );
 
+//Bottom Sheet
 export const TextCash = () => (
     <Text>Cash * </Text>
 );
 
+const styles = StyleSheet.create({
+
+    wrapper: {
+      paddingTop: 50,
+      flex: 1
+    },
+  
+    modal: {
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
+  
+    modal3: {
+      backgroundColor: "transparent"
+    },
+    modalTransferBank: {
+        backgroundColor: "white"
+    }
+  
+  });
+
 const mapStateToProps = (state) => ({
     login: state,
-    product:state,
-    bookingCalendar: state,
-    product: state
+    calculatePrice: state.calculatePrice.data,
+    paymentCash: state.paymentCash.data
   });
   
 const mapDispatchToProps = (dispatch) => ({
-    action: bindActionCreators({}, dispatch)
+    action: bindActionCreators({postCalculatePriceBooking, postPaymentCash}, dispatch)
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BookingPaymentScreen);

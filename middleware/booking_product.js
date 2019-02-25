@@ -4,8 +4,6 @@ import { BOOKING_PRODUCT_REQUEST, GET_BOOKING_PRODUCT } from '../constants/actio
 
 const bookingProductMiddleware = ({ dispatch }) => (next) => (action) => {
 
-    
-
     if(action.type === BOOKING_PRODUCT_REQUEST ){
         // console.log(action)
 
@@ -31,8 +29,6 @@ const bookingProductMiddleware = ({ dispatch }) => (next) => (action) => {
         dispatch({type: action.payload.next.PENDING})
     }
 
-
-    
 
     next(action);
 }; 

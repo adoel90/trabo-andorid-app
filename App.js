@@ -30,6 +30,8 @@ import bookingProductDateAvailableMiddleware from './middleware/booking_product_
 import bookingProductDetailMiddleware from './middleware/booking_product_detail';
 // import postFormBookingMiddleware from './middleware/booking_post';
 import postBookingCalculatePriceMiddleware from './middleware/booking_post_calculate_price';
+import paymentCashMiddleware from './middleware/payment_cash';
+import paymentTransferBankMiddleware from './middleware/payment_transfer_bank';
 
 import { rootSaga } from './middleware-saga/index';
 
@@ -44,7 +46,9 @@ const store = Reactotron.createStore(rootReducer, applyMiddleware(
                                                       bookingProductDateAvailableMiddleware,
                                                       bookingProductDetailMiddleware,
                                                       // postFormBookingMiddleware,
-                                                      postBookingCalculatePriceMiddleware
+                                                      postBookingCalculatePriceMiddleware,
+                                                      paymentCashMiddleware,
+                                                      paymentTransferBankMiddleware
                                                     ));
                                                       
 

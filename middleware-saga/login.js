@@ -58,7 +58,8 @@ export function* workerLogin(action){
         
         if(response.status === 200){
             yield put({type:action.payload.next.SUCCESS, payload: response.data.response });
-         
+            
+            const access_token = response.data.response != null ? response.data.response.access_token : null;
 
             // ==> Action to fire BOOKING_CALENDAR_AVAILABLE_REQUEST !
             yield put({
@@ -85,7 +86,8 @@ export function* workerLogin(action){
                 payload: {
                     url: URL_API + `/product/recent-order`,
                     next: GET_RECENT_ORDER
-                }
+                },
+                access_token: access_token
             })
 
         } else {
