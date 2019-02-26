@@ -12,19 +12,17 @@ export const getBookingCalendarAvailable = (data) => ({
 
     type: BOOKING_CALENDAR_AVAILABLE_REQUEST,
     payload: {
-        url: URL_API + `/mobile/product/sales-calendar?product_code=${data != null ? data.code : ""}`,
+        url: URL_API + `/mobile/product/sales-calendar?product_code=${data != null ? data.product_code : ""}`,
         next: GET_BOOKING_CALENDAR_AVAILABLE
     },
-    data: data
-
-
+    data: data //Need this parameter to get "access_token"
     
     /* 
         
         Parameter "data" : {
             
             access_token: "blabla",
-            code: "blablabla"
+            product_code: "blablabla"
         }
 
     */

@@ -15,13 +15,12 @@ import {
   Alert
 } from 'react-native';
 import moment from 'moment';
-
-// import { ListItem } from 'react-native-material-ui';
 import CalendarPicker from 'react-native-calendar-picker';
 import {Column as Col, Row} from 'react-native-flexbox-grid';
+import {widthPercentageToDP as width, heightPercentageToDP as height} from 'react-native-responsive-screen';
 import styled, {ThemeProvider} from 'styled-components/native'
-import Modal from "react-native-modal";
 import { Dialog, DialogDefaultActions } from 'react-native-material-ui';
+import Modal from 'react-native-modalbox';
 
 import Dates from '../components/Date';
 import StatusPayment from '../components/booking/StatusPayment';
@@ -48,7 +47,8 @@ class BookingScreen extends React.Component {
     
     super(props);
     this.onDateChange = this.onDateChange.bind(this);
-    this._handleChangeOption = this._handleChangeOption.bind(this);
+    this.handleModalPickProduct = this.handleModalPickProduct.bind(this);
+    this.handleSelectedProduct = this.handleSelectedProduct.bind(this);
     
     this.state = {
 
@@ -57,6 +57,9 @@ class BookingScreen extends React.Component {
       startDate: null,
       endDate: null,
       productList:{},
+      customDatesStylesAvailable:[],
+      selectedProductFromPicker: '',
+      selectedProductCode:'',
       selectedValueDropdownlist: {},
       isSelectedValueDrProduct: false,
       isClickDropdown: false,
@@ -66,12 +69,16 @@ class BookingScreen extends React.Component {
       selectedStartDate: null,
       selectedSDateSecondVersion: null,
       recentOrderList: {},
-      accessToken: {}
+      accessToken: {},
+
+      //REACT MODAL BOX
+      isOpen: false,
+      isDisabled: false,
+      swipeToClose: true,
+      sliderValue: 0.3
       
     };
-
-  }
-
+  };
 
   componentDidMount(){
     const { action } = this.props;
@@ -100,22 +107,47 @@ class BookingScreen extends React.Component {
 
       this.setState({
         ...this.state,
-        dateListAvailable: availableCalendar.response
+        dateListAvailable: availableCalendar.response,
+        productList: product
       })
     }
 
+    //*AVAILABLE CALENDAR
     if(prevProps.availableCalendar != availableCalendar){
+
+      // customDatesStyles={[{date:"2019-02-26",style:{backgroundColor:'orange'}}, {date:"2019-02-27", style:{backgroundColor:'orange'}}]}
+      // let customDatesinActive = [];
+      let customDatesStyles = [];
+
+      if(availableCalendar.response != null ){
+        if(availableCalendar.response.available != null){
+          if(availableCalendar.response.available.length != null){
+
+            // console.log("Props Available List : ", availableCalendar.response.available )
+            availableCalendar.response.available.map((data) => {
+
+              let dummy = {date: data, style: {backgroundColor:'orange'}}
+              customDatesStyles.push(dummy)
+
+            
+            })
+          }
+        };       
+      }
+
+      console.log("Custome Dates Styles : ", customDatesStyles);
+
       this.setState({
         ...this.state,
-        dateListAvailable: availableCalendar.response
-      }, () => {
-        // console.log("Date Available List : ",this.state.dateListAvailable)
-      })
+        dateListAvailable: availableCalendar.response,
+        customDatesStylesAvailable:customDatesStyles
+      });
+
+
     }
 
+    //*RECENT ORDER 
     if(prevProps.recentOrder != recentOrder){
-      // console.log("Recent Order : ", recentOrder);
-
       this.setState({
         ...this.state,
         recentOrderList: recentOrder
@@ -151,137 +183,110 @@ class BookingScreen extends React.Component {
   _toggleModal = () => {
     this.setState({ isModalVisible: !this.state.isModalVisible });
   }
+  
+  handleModalPickProduct = (e) => {
+    e.preventDefault();
+    this.refs.modalPicker.open();
+  };
 
-  //*Picker or Dropdownlist utilities
-  _handleChangeOption = async (value) => {
+  handleSelectedProduct = async (e, data) => {
+    e.preventDefault();
+    this.refs.modalPicker.close();
 
     const paramsAccessTokenMobile = await AsyncStorage.getItem("accessTokenMobile");
     const accessTokenMobile = JSON.parse(paramsAccessTokenMobile);
-    // console.log(accessTokenMobile.access_token);
-
+    
     this.setState({
       ...this.state,
-      selectedValueDropdownlist: value,
+      selectedProductFromPicker: data.name,
+      selectedProductCode: data.code,
       isSelectedValueDrProduct: true
-    
-    }, () => {
 
+    }, () => {
       const { action } = this.props;
       
       let data = {
-        access_token: accessTokenMobile.access_token
-      }
+        access_token: accessTokenMobile.access_token,
+        product_code: this.state.selectedProductCode
+      };
+      // console.log(data);
       action.getBookingCalendarAvailable(data)
-    })
+    });
+
+    
+
   }
 
  
  
   render() {
 
-    const { action, availableCalendar, product, recentOrder} = this.props;
-    const { selectedValueDropdownlist, isClickDropdown, recentOrderList, selectedStartDate, isSelectedValueDrProduct} = this.state;
+    const { product, availableCalendar} = this.props;
+    const { 
+            recentOrderList, 
+            selectedStartDate, 
+            isSelectedValueDrProduct,
+            productList,
+            selectedProductFromPicker,
+            dateListAvailable,
+            customDatesStylesAvailable
+          } = this.state;
+
     const startDate = selectedStartDate ? selectedStartDate.toString() : '';
 
-    //*Native Date Utilities
-    const isDateBlocked = (date) => {
-      date = moment('2019-02-20').isBefore(moment('2019-02-28'), 'day');
-      
-    }
-
-    // const onDateChange = ({ date }) => {
-    //   this.setState({ ...this.state, date });
-    // };
-    
     const start = moment('2017-07-1', 'YYYY-MM-DD');
     const end   = moment('2017-07-28', 'YYYY-MM-DD');
-    // const range = moment.range(start, end);
 
+    let customDatesInActive = [];
+    // {date: data, style: {backgroundColor:'orange'}}
 
-  
-  
     return (
       <View style={styles.container}>   
-     
+
+         {/** MODAL PICKER PRODUCT */}
+         <Modal style={[styles.modal, styles.modalPicker]} position={"center"} ref={"modalPicker"}>
+          {
+            productList.length != null ? productList.map((data, i) => {
+              return (
+                <TextListItemPicker
+                  key={i}
+                  onPress={(e) => this.handleSelectedProduct(e, data)}
+                >
+                  {data.name}
+                </TextListItemPicker>
+              )
+            }) : null
+          }
+       </Modal>
+
         <ScrollView contentContainerStyle={styles.contentContainer}>
+
           <OpenSansText></OpenSansText>
-          {/*
-            <TouchableOpacity onPress={this._toggleModal}>
-              <OpenSansTextSelectProduct>{isSelectedValueDrProduct == true ? selectedValueDropdownlist.name : "Select Product for availability"}</OpenSansTextSelectProduct>
-            </TouchableOpacity>
-
-             Modal React Native Modal 
-            <Modal 
-              animationIn="slideInUp"
-              isVisible={this.state.isModalVisible} 
-              style={styles.modalContent}>
-              
-              <View style={{ flex: 1 }}>
-                <FlatList
-                  data={product.length != null ? product : loading }
-                
-                  
-                  renderItem={({item, separators}) => (
-                    <TouchableOpacity
-                      onPress={this._handleChangeOption(item)}
-                      onShowUnderlay={separators.highlight}
-                      onHideUnderlay={separators.unhighlight}>
-    
-                      <View style={{backgroundColor: 'white'}} >
-                        <OpenSansTextPicker key={item.code}>{item.name}</OpenSansTextPicker>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                />
-      
-                <TouchableOpacity onPress={this._toggleModal}>
-                  <Text>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </Modal>
-
-             */}
+          <TouchableOpacity>
+            <OpenSansTextSelectProduct
+              onPress={(e) => this.handleModalPickProduct(e)}
+            >
+            {selectedProductFromPicker != '' ? selectedProductFromPicker : "Select Product for availability"}</OpenSansTextSelectProduct>
+          </TouchableOpacity>
         
-
-          
-            <Picker
-                selectedValue={selectedValueDropdownlist }
-                style={styles.dropdownlist}
-                // itemStyle={{fontFamily:'open-sans-medium'}} Only working on iOS
-                onValueChange={this._handleChangeOption}
-                textStyle={{fontFamily:'TraboRobotoMedium'}}
-              >
-              
-                {
-                  product.length != null ? product.map((data, i) => {
-                    return(
-                      <Picker.Item             
-                        key={i} 
-                        label={data.name} 
-                        value={data.code} />
-                      )
-                    }) : null 
-                    // "Custom Font Picker using Android" ==> https://stackoverflow.com/questions/38921492/how-to-style-the-standard-react-native-android-picker/39141949#39141949
-                    // }) : renderDefaultValueDropdownlist()
-                  }
-              </Picker>
-          
-
-          
           <BorderBottomView></BorderBottomView>
 
           <CalendarPicker
             onDateChange={this.onDateChange}
-            selectedStartDate={new Date(2019, 6, 3)}
+            // minDate={isSelectedValueDrProduct == true  ? new Date (2019,2, 2 ) : null}
+            // maxDate={isSelectedValueDrProduct == true  ? new Date(2019, 2, 28) : null }
+            // minDate={new Date (2019,2, 2 )}
+            // maxDate={new Date(2019, 2, 28) }
+            selectedStartDate={start}
             selectedEndDate={end}
-            selectedDayColor="grey"
-            minDate={isSelectedValueDrProduct == true  ? new Date (2019,1, 18) : null}
-            maxDate={isSelectedValueDrProduct == true  ? new Date(2019, 1, 28) : null }
-            selectedDayStyle={{backgroundColor:'orange'}}
+            selectedDayColor="grey"                                                                                                                                                                                                                                                                                                                  
+            selectedDayStyle={{backgroundColor:'white'}}
             // allowRangeSelection={true}
             textStyle={{fontFamily:'TraboRobotoMedium'}}
             previousTitle="chevron-left"
             nextTitle="chevron-right"
+            // customDatesStyles={[{date:"2019-02-26",style:{backgroundColor:'orange'}}, {date:"2019-02-27", style:{backgroundColor:'orange'}}]}
+            customDatesStyles={isSelectedValueDrProduct == true ? customDatesStylesAvailable : customDatesInActive }
           />
 
           <RecentOrderSeeMoreView>  
@@ -299,8 +304,9 @@ class BookingScreen extends React.Component {
               
               recentOrderList.length != null ? 
                 recentOrderList.map((data, i) => {
+
                   return (
-                    
+                  
                     <Row size={12} style={{marginBottom: 12}} key={i}>
                       <Col sm={3}><StatusPayment value={data.status_name} fontSize="12px" /></Col>
                       <Col sm={7}><ProductDestination value={data.product_name} fontSize="13px" /></Col>
@@ -391,7 +397,7 @@ const OpenSansTextPicker = styled.Text`
 const OpenSansTextSelectProduct = styled.Text`
   font-family: 'TraboRobotoMedium';
   font-size: 17px;
-  margin: 10px;
+  margin: 5px;
   text-align: center;
   color: #989898;
 `
@@ -429,7 +435,13 @@ const BorderBottomView = styled.View`
   margin-top: 4;
   margin-bottom:10; 
 `
-
+const TextListItemPicker = styled.Text`
+    font-family: 'TraboRobotoMedium';
+    font-size: ${height('3.3%')};
+    color: gray;
+    margin-left: 22;
+    margin-bottom: 12;
+`;
 
 // border-radius: 2;
 // shadow-radius: 2;
@@ -461,7 +473,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 4,
     borderColor: 'rgba(0, 0, 0, 0.1)',
-  }
+  },
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  modalPicker: {
+    backgroundColor: "white"
+  },
 });
 
 const mapStateToProps = (state) => ({

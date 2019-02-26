@@ -70,16 +70,14 @@
 # Waiting List "Kerjaan":
 * What the color for status name transaction ? 
 * What ? Border bottom in React Native is hard !!!
-* Icon in "Date Picker"
-* Functional "Date Picker"
 * Add border bottom in "BookingDateDetailScreen.js"
-* In page "New Booking", buat list Additional Product interface yang DINAMIS / Normalized data Additional Product
 * In page "New Booking", buat "NORMALIZED ALL DATA" 
-* Font family TextField Form Booking saat pengisian di buat "Roboto"
 * Payment Transfer via Alfa Mart 
     - Pembayaran di bawah 5 juta baru bisa di lakukan di AlfaMart
-
 * Font Family in button not work !
+* Booking - Date Picker, tanggal sesudah tanggal hari ini DI BUAT INACTIVE !
+* Booking - Date Picker, initiate tanggal awal DI BUAT INACTIVE !
+
 
 
 
@@ -90,6 +88,41 @@
     - /middleware-saga/booking_calendar_available.js ==> DONE
     - /middleware/booking_product_date_available.js ==> DONE
 * Normalized data "Available Product with Date" ==> DONE, Anwar has thrown those data.
+* Icon in "Date Picker" ==> DONE
+* Font family TextField Form Booking saat pengisian di buat "Roboto" ==> DONE
+* Functional "Date Picker" ==> DONE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
      {/* 
         <Toolbar
