@@ -18,7 +18,7 @@ import moment from 'moment';
 import CalendarPicker from 'react-native-calendar-picker';
 import {Column as Col, Row} from 'react-native-flexbox-grid';
 import {widthPercentageToDP as width, heightPercentageToDP as height} from 'react-native-responsive-screen';
-import styled, {ThemeProvider} from 'styled-components/native'
+import styled, {ThemeProvider} from 'styled-components/native';
 import { Dialog, DialogDefaultActions } from 'react-native-material-ui';
 import Modal from 'react-native-modalbox';
 
@@ -31,10 +31,8 @@ import TimeInfo from '../components/booking/TimeInfo';
 import PaxTotal from '../components/booking/PaxTotal';
 import DescriptionId from '../components/booking/DescriptionId';
 
-
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-// import { getListUser } from '../actions/user';
 import { getBookingCalendarAvailable } from '../actions/booking_calender_available'
 
 class BookingScreen extends React.Component {
@@ -101,7 +99,7 @@ class BookingScreen extends React.Component {
           AsyncStorage.setItem("accessTokenMobile", JSON.stringify(data))
         })
       }
-    }
+    };
 
     if(prevProps.product != product){
 
@@ -110,7 +108,7 @@ class BookingScreen extends React.Component {
         dateListAvailable: availableCalendar.response,
         productList: product
       })
-    }
+    };
 
     //*AVAILABLE CALENDAR
     if(prevProps.availableCalendar != availableCalendar){
@@ -129,22 +127,19 @@ class BookingScreen extends React.Component {
               let dummy = {date: data, style: {backgroundColor:'orange'}}
               customDatesStyles.push(dummy)
 
-            
             })
           }
         };       
-      }
+      };
 
-      console.log("Custome Dates Styles : ", customDatesStyles);
+      // console.log("Custome Dates Styles : ", customDatesStyles);s
 
       this.setState({
         ...this.state,
         dateListAvailable: availableCalendar.response,
         customDatesStylesAvailable:customDatesStyles
       });
-
-
-    }
+    };
 
     //*RECENT ORDER 
     if(prevProps.recentOrder != recentOrder){
@@ -152,7 +147,7 @@ class BookingScreen extends React.Component {
         ...this.state,
         recentOrderList: recentOrder
       })
-    }
+    };
   }
 
   onDateChange(date) {
@@ -160,13 +155,14 @@ class BookingScreen extends React.Component {
       selectedStartDate: moment(date).format('ddd, DD MMM YYYY'),
       selectedSDateSecondVersion: moment(date).format('YYYY-MM-DD')
     }, () => {
-      const { selectedStartDate, selectedSDateSecondVersion, accessToken} = this.state;
+      const { selectedStartDate, selectedSDateSecondVersion, accessToken, selectedProductCode} = this.state;
       // this.props.navigation.navigate('Authentication');
 
       this.props.navigation.navigate('InsideBooking', {
                                               data: selectedStartDate, 
                                               secondData: selectedSDateSecondVersion,
-                                              thirdDataIsToken: accessToken
+                                              thirdDataIsToken: accessToken,
+                                              fourthDataProductCode: selectedProductCode
                                             })
     });
   }
@@ -210,15 +206,10 @@ class BookingScreen extends React.Component {
         product_code: this.state.selectedProductCode
       };
       // console.log(data);
-      action.getBookingCalendarAvailable(data)
+      action.getBookingCalendarAvailable(data);
     });
+  };
 
-    
-
-  }
-
- 
- 
   render() {
 
     const { product, availableCalendar} = this.props;
@@ -238,11 +229,9 @@ class BookingScreen extends React.Component {
     const end   = moment('2017-07-28', 'YYYY-MM-DD');
 
     let customDatesInActive = [];
-    // {date: data, style: {backgroundColor:'orange'}}
-
+    
     return (
       <View style={styles.container}>   
-
          {/** MODAL PICKER PRODUCT */}
          <Modal style={[styles.modal, styles.modalPicker]} position={"center"} ref={"modalPicker"}>
           {
@@ -275,7 +264,7 @@ class BookingScreen extends React.Component {
             onDateChange={this.onDateChange}
             // minDate={isSelectedValueDrProduct == true  ? new Date (2019,2, 2 ) : null}
             // maxDate={isSelectedValueDrProduct == true  ? new Date(2019, 2, 28) : null }
-            // minDate={new Date (2019,2, 2 )}
+            // minDate={new Date (2019,2, 2 )} //Here you can "disabled" date !
             // maxDate={new Date(2019, 2, 28) }
             selectedStartDate={start}
             selectedEndDate={end}

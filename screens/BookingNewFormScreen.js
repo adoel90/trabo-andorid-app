@@ -60,10 +60,10 @@ class BookingNewFormScreen extends React.Component {
     this.decrease = this.decrease.bind(this);
 
     this.state = {
-        phone: null,
+        phone: '',
         name:'',
         email:'',
-        specialnotes:'',
+        
         referral:'',
         komenk:'',
         timeProduct:'',
@@ -72,11 +72,11 @@ class BookingNewFormScreen extends React.Component {
         listPax: {}, 
         amountPaxPriceAdultId:null,
         packet:{},
-        listPackages:{},
+        
         listPackagesId:{},
         listCabinsState:{},
         listEntrances:{},
-        listDescription:{},
+        
 
         //Interface
         maxTotalClicks: 10,
@@ -84,12 +84,27 @@ class BookingNewFormScreen extends React.Component {
         totalChildren: 0,
         totalChildrenInfant: 0,
         totalAmount: 0,
-        specialNotes: '',
 
         //Phone State
         valid: "",
         type: "",
-        value: ""
+        value: "",
+
+        //Addtional Product Version-2
+        listPackages:{},
+        daftarAdditionalProduct: {},
+        listDescription:{},
+        listDescriptionWithListPax: {},
+        specialnotes:'',
+        accessToken:'',
+
+        //About Additional Product Logic
+        multiplicationAmountAdditionalProductWithQuantity:'',
+        quantityAdditionalProduct:'',
+        amountPerUnitAdditionalProductWithId: [],
+
+        //About Package/Packet Logic
+        amountPerUnitPackagePacketWithId:[]
     }
 
   }
@@ -110,34 +125,30 @@ class BookingNewFormScreen extends React.Component {
     let data = {
       params: paramsFromBookingDateDetail,
       access_token: accessTokenMobile
-    }
-
+    };
 
     action.getProductDetail(data);  
-  }
+  };
 
   componentDidUpdate(prevProps){
   
     const { navigation, productDetail } = this.props;
-    // const { listPackages } =listEntrances this.state;
 
     if(prevProps.productDetail != productDetail){
-      if(productDetail.listPackage.length != null || productDetail.listPackageId.length != null ){
-        if(productDetail.listCabin.length != null){
-          if(productDetail.listEntrance.length != null || productDetail.listAdditionalDescription.length != null){
+      if(productDetail.listAdditionalProducts.length != null){
+
+          this.setState({
+            ...this.state,
+            listPackages: productDetail.listPackage,
+            daftarAdditionalProduct: productDetail.listAdditionalProducts,
+            listDescription: productDetail.listAdditionalDescription,
+            listDescriptionWithListPax: productDetail.listAdditionalDescriptionWithListPax,
+            specialNotes: productDetail.specialNote,
+            amountPerUnitAdditionalProductWithId: productDetail.amountPerUnitAdditionalProductWithId,
+            amountPerUnitPackagePacketWithId: productDetail.amountPerUnitPackagePacketWithId,
             
-            this.setState({
-              ...this.state,
-              listPackages: productDetail.listPackage,
-              listCabinsState : productDetail.listCabin,
-              listEntrances : productDetail.listEntrance,
-              listDescription: productDetail.listAdditionalDescription,
-              listPackagesId: productDetail.listPackageId,
-              specialNotes: productDetail.specialNote
-            })
-          }
-        }
-      };  
+          })
+      };
     };
   };
 
@@ -159,7 +170,18 @@ class BookingNewFormScreen extends React.Component {
     });
   };
 
-  handlePostBookingForm = () => {
+  // handlePostBookingForm = () => {
+    handlePostBookingForm = async () => {
+
+    const paramsAccessTokenMobile = await AsyncStorage.getItem("accessTokenMobile");
+    const accessTokenMobile = JSON.parse(paramsAccessTokenMobile);
+
+    //*Only want to store "token".
+    this.setState({
+        ...this.state,
+        accessToken: accessTokenMobile
+    });
+    //****************************************** */
 
     const { action, navigation } = this.props;
 
@@ -177,10 +199,13 @@ class BookingNewFormScreen extends React.Component {
             referral,
             specialNotes,
             listDescription,
-            totalAmount
+            totalAmount,
+            amountPerUnitAdditionalProductWithId,
+            amountPerUnitPackagePacketWithId,
+            listDescriptionWithListPax
           } = this.state
 
-    let phoneCode = phone;
+   let phoneCode = phone;
 
    console.log('Starting Post Booking ...');
 
@@ -190,32 +215,42 @@ class BookingNewFormScreen extends React.Component {
       toddlers: totalChildrenInfant ? totalChildrenInfant : 0,
       date: dateProduct ? dateProduct : new Date(),
       product_code: codeProduct ? codeProduct : "Call Administrator to ask your product code",
-      package:  [{"id": 328500, "qty": 0}], // type value : Array - listPackagesId, gw mesti dapetin
-      additional: [{"id": 197, "qty": 0},{"id": 198, "qty": 0},{"id": 201, "qty": 0}], // Array ==> data "additional product di dalam detail, yang "id" not yang "additional_product_id" 
-      user_code: "",  // Dapet dari mana data ini ?
+
+
+      package:  [{"id": 328500, "qty": 0}], //*Data from amountPerUnitPackagePacketWithId = []
+      // package: amountPerUnitPackagePacketWithId,
+      additional: [{"id": 197, "qty": 0},{"id": 198, "qty": 0},{"id": 201, "qty": 0}], // Array ==> data "additional product di dalam detail, yang "id" BUKAN yang "additional_product_id" 
+      // additional: amountPerUnitAdditionalProductWithId, //*Data from amountPerUnitAdditionalProductWithId = []
+      user_code: "",  // Dapet dari mana data ini ? ==> Ga di isi gpp
       promo_code: "satu", // Dapet dari mana data ini ?
       name: name ? name : "What is your names ? ",
+
+
       phone: this.state.phone.getValue() ? this.state.phone.getValue() : "What is your phone ",
       email: email ? email : "What is your email ? ",
       comment: komenk ? komenk : "...",
-      payment_type: "", // Not used
+      payment_type: "", //"payment_type" : {status} -> full-payment ,deposit,complimentary (Sementara di kosongin gpp!)
       customer_code: "",
-      total_amount: 10000, // totalAmount ? totalAmount :  ==> Ini value dapat dari total keseluruhan DUIT
+
+
+      total_amount: 1000000, // totalAmount ? totalAmount :  ==> Ini value dapat dari total keseluruhan DUIT
       operation_time: timeProduct ? timeProduct : "12:00 AM",
       phone_code: this.state.phone.getCountryCode() ? this.state.phone.getCountryCode() : "62",
       referral: referral ? referral : "",
-      // additional_description: listDescription ? listDescription : null // Array
+
+
+      // additional_description: listDescriptionWithListPax, ==> MASIH ERROR, HARUSNYA TYPE OBJECT
       additional_description:{
         "description":[{"heading":"A","content" :["Laundry Service↵✓  Shaded diving deck↵✓  Camera Station↵✓  Daily housekeeping↵✓  Audio & video entertainment↵✓  Library↵✓  Air Conditioned saloon↵✓  Aircon Cabins↵✓  Sun Deck↵✓  Indoor Saloon↵✓  Non-Diver (Snorkeler) Friendly↵✓  Warm Water Showers↵✓  Separate rinse for u/w camera↵✓  Custom built for diving↵✓  Charging stations↵✓  En-Suite bathrooms"]},{"heading":"C","content" :["123","llll"]}],
-      }
-      // "pax_details":[{"heading":"B","content" :[null]}]
+        "pax_details":[{"heading":"B","content" :[null]}] //==> Data from list Additional Description [type Array]
+      },
+      access_token: accessTokenMobile.access_token
 
     };
 
     console.log(data);
     action.postFormBooking(data);
     navigation.navigate('BookingPayment');
-
     
   };
 
@@ -236,9 +271,7 @@ class BookingNewFormScreen extends React.Component {
           ...this.state,
           totalClicks: this.state.totalClicks - 1
       })
-
   };
-
 
   render() {
 
@@ -259,7 +292,13 @@ class BookingNewFormScreen extends React.Component {
           totalChildren,
           totalChildrenInfant,
           maxTotalClicks,
-          specialNotes
+          specialNotes,
+          
+
+          //********* ADDITIONAL PRODUCT V-2 */
+          daftarAdditionalProduct,
+          amountPerUnitAdditionalProductWithId
+
         } = this.state;
   
     return (
@@ -318,7 +357,7 @@ class BookingNewFormScreen extends React.Component {
                         // initialCountry="US"
                         // value="Phone Number"
                         textProps={{placeholder: 'Phone Number'}}
-                        // onChangePhoneNumber={(phone) => this.setState({phone})}
+                        onChangePhoneNumber={(phone) => this.setState({phone})}
                         
                       />
                   </Col>
@@ -352,7 +391,6 @@ class BookingNewFormScreen extends React.Component {
 
           {/* #3 TICKETS */}
           <CardView>
-            
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Tickets</Text>
             
             {/** Adults - var string = numeral(1000).format('0,0'); */}
@@ -364,9 +402,7 @@ class BookingNewFormScreen extends React.Component {
                 {/** <TextGeneral value={" Age " + productDetail.listPaxAdult.age_from + " - " + productDetail.listPaxAdult.age_to } fontSize="11px" />*/}
               </Col>
               <Col sm={1}>
-                
                   <IconGeneral name="remove-circle" onPress={(e) => this.decrease(e)}/>
-                
               </Col>
               <Col sm={2}>
                 <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>{ totalAdult }</Text>
@@ -376,7 +412,6 @@ class BookingNewFormScreen extends React.Component {
                   totalAdult === maxTotalClicks ? 
                     <IconGeneralInActive name="control-point" /> : <IconGeneral name="control-point" onPress={(e) => this.increment(e)} />
                 }
-                
               </Col>
             </Row>
 
@@ -425,7 +460,6 @@ class BookingNewFormScreen extends React.Component {
 
           {/* #4 PACKAGE*/}
           <CardView>
-            
             {
               listPackages.length != null ? listPackages.map((data, i) => {
                 // console.log("List Packages : ", data)
@@ -460,146 +494,53 @@ class BookingNewFormScreen extends React.Component {
                 )
               }) : null
             }
-            
-
-            {/**
-            <Row size={12} style={{margin: 12}}>
-              <Col sm={8}>
-                <TextGeneral value="Raja Ampat South-North" fontSize="17px" />
-                <TextGeneral value="IDR 5000000" fontSize="14px" />
-              </Col>
-              <Col sm={1}>
-                <IconGeneral name="remove-circle" />
-              </Col>
-              <Col sm={2}>
-                <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>0</Text>
-              </Col>
-              <Col sm={1}>
-                <IconGeneral name="control-point" />
-              </Col>
-            </Row>
-
-            <Row size={12} style={{margin: 12}}>
-              <Col sm={9}>
-                <TextGeneral value="Age 15 - 50" fontSize="11px" />
-              </Col>
-              <Col sm={3}>
-                <TextGeneral value="Minimum 2 PAX" fontSize="12px" style={{color: 'black'}}/>
-              </Col>
-            </Row>
-
-             */}
           </CardView>
 
-          {/* #5 ADDITIONAL PRODUCT*/}
+          {/* #5 ADDITIONAL PRODUCT */}
           <CardView>
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
             
-            {/* CABIN */}
-            <Row size={12} style={{marginLeft: 12}}>
-              
-              <Col sm={12}>
-                <TextGeneral value="Cabin" fontSize="18px" />
-              </Col>
-            </Row>
-              
+                {
+                  daftarAdditionalProduct.length != null ? daftarAdditionalProduct.map((data, i) => {
+                      return (
+                        <Row  key={i} size={12} style={{marginLeft: 10}}>
+                          <Col sm={12}>
+                            <TextGeneral value={data.name} fontSize="18px" />
+                          </Col>
+                            {
+                              data.details.length != null ? data.details.map((detail, i) => {
+                                return (
+                                  <Row key={i} size={12} style={{margin: 12, marginLeft:0}}>
+                                    <Col sm={8}>
+                                      <TextGeneral value={detail.description} fontSize="17px" />
+                                      <TextGeneral value={"IDR " + detail.amount} fontSize="14px" />
+                                      <TextGeneral value={"Remark: " + detail.remark} fontSize="12px" />
+                                      <TextGeneral value={"Maximum per booking = " + detail.max_per_booking} fontSize="12px" />
+                                    </Col>
+                                    <Col sm={1}>
+                                      <IconGeneral name="remove-circle" />
+                                    </Col>
+                      
+                                    <Col sm={2}>
+                                      <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
+                                    </Col>
+                      
+                                    <Col sm={1}>
+                                      <IconGeneral name="control-point" />
+                                    </Col>
+                                  </Row>
+                                )
+                              }) : null
+                            }
+                        </Row>
+            
 
-              {
-                listCabinsState.length != null ? listCabinsState.map((cabins, i) => {
-                  
-                  return (
-                    <Row key={i} size={12} style={{margin: 12}}>
-                      <Col sm={8}>
-                        <TextGeneral value={cabins.description} fontSize="17px" />
-                        <TextGeneral value={"IDR " + cabins.amount} fontSize="14px" />
-                        <TextGeneral value={"Remark: " + cabins.remark} fontSize="12px" />
-                        <TextGeneral value={"Maximum per booking = " + cabins.max_per_booking} fontSize="12px" />
-                      </Col>
-      
-                      <Col sm={1}>
-                        <IconGeneral name="remove-circle" />
-                      </Col>
-        
-                      <Col sm={2}>
-                        <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
-                      </Col>
-        
-                      <Col sm={1}>
-                        <IconGeneral name="control-point" />
-                      </Col>
-                    </Row>
-                  )
-                }) : null
-              }
-
-              {/* ENTRANCE  */}
-              <Row size={12} style={{marginLeft: 12}}>
-                <Col sm={12}>
-                  <TextGeneral value="Entrance" fontSize="18px" />
-                </Col>
-              </Row>
-
-              {
-                listEntrances.length != null ? listEntrances.map((entrance, i) => {
-                  return (
-                    <Row key={i} size={12} style={{margin: 12}}>
-                      <Col sm={8}>
-                        <TextGeneral value={entrance.description} fontSize="17px" />
-                        <TextGeneral value={"IDR " + entrance.amount} fontSize="14px" />
-                        <TextGeneral value={"Remark: " + entrance.remark} fontSize="12px" />
-                        <TextGeneral value={"Maximum per booking = " + entrance.max_per_booking} fontSize="12px" />
-                      </Col>
-      
-                      <Col sm={1}>
-                        <IconGeneral name="remove-circle" />
-                      </Col>
-        
-                      <Col sm={2}>
-                        <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
-                      </Col>
-        
-                      <Col sm={1}>
-                        <IconGeneral name="control-point" />
-                      </Col>
-                    </Row>
-                  )
-                }) : null
-              }
-          
-
-             {/* 
-              <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Additional Product</Text>
-
-              <Row size={12} style={{marginLeft: 12}}>
-                <Col sm={12}>
-                  <TextGeneral value="Cabin" fontSize="18px" />
-                </Col>
-              </Row>
-              
-              <Row size={12} style={{margin: 12}}>
-                <Col sm={8}>
-                  <TextGeneral value="Seahorse Standard Cabin" fontSize="17px" />
-                  <TextGeneral value="IDR 4000000" fontSize="14px" />
-                  <TextGeneral value="Remark: Twin 2 single" fontSize="12px" />
-                  <TextGeneral value="Maximum per booking = 2" fontSize="12px" />
-                </Col>
-
-                <Col sm={1}>
-                  <IconGeneral name="remove-circle" />
-                </Col>
-
-                <Col sm={2}>
-                  <Text style={{marginLeft: 17, fontFamily: 'TraboRobotoMedium'}}>1</Text>
-                </Col>
-
-                <Col sm={1}>
-                  <IconGeneral name="control-point" />
-                </Col>
-              </Row>
-
-            */}
+                      )
+                  }) : null
+                }
+           
           </CardView>
-          
+
           {/* #6 CANCELLATION POLICY*/}
           <CardView>
             <Text style={{fontFamily: 'TraboRobotoMedium', margin: 10}} color="gray">Cancellation Policy</Text>
@@ -632,35 +573,34 @@ class BookingNewFormScreen extends React.Component {
             
             
             {/** 
-            <Row size={12} style={{margin: 12}}>
-              <Col sm={12}>
-                <TextGeneral value="Raja Ampat - 8 Days Day One : Sorong" fontSize="18px" />
-                <TextGeneral value="Welcome to Dampier Straits areas. We will have check dive at Mioskon. Monitoring your buoyancy skill and make yourself comfortable with water and your gear. For some of you who has not dive for a long time, check dive is always a good way to refresh your skill. We have many excellent dive spot around the area. Cape Kri is a great start of the day with most fish and coral species accounted on a single dive site. Truly dive sites like Cape Kri, of Dr. Allen’s 30-year lifetime record fish count. Cape Kri has probably the largest concentration of big fish of any sites in northern Raja Ampat. Mioskon, Cape Kri and Mike’s point are among the sites for day two.
-                " fontSize="17px" />
-              
-              </Col>
-            </Row>
+              <Row size={12} style={{margin: 12}}>
+                <Col sm={12}>
+                  <TextGeneral value="Raja Ampat - 8 Days Day One : Sorong" fontSize="18px" />
+                  <TextGeneral value="Welcome to Dampier Straits areas. We will have check dive at Mioskon. Monitoring your buoyancy skill and make yourself comfortable with water and your gear. For some of you who has not dive for a long time, check dive is always a good way to refresh your skill. We have many excellent dive spot around the area. Cape Kri is a great start of the day with most fish and coral species accounted on a single dive site. Truly dive sites like Cape Kri, of Dr. Allen’s 30-year lifetime record fish count. Cape Kri has probably the largest concentration of big fish of any sites in northern Raja Ampat. Mioskon, Cape Kri and Mike’s point are among the sites for day two.
+                  " fontSize="17px" />
+                
+                </Col>
+              </Row>
             */}
 
           </CardView>
 
           {/** #7 SPECIAL NOTES */}
           <CardView>
-            <Row size={12}>
+            <Row size={12} style={{margin:12}}>
+              <Text style={{fontFamily: 'TraboRobotoMedium'}} color="gray">Special Notes</Text>
               <Col sm={12}>
+                {/*
                 <TextField
                     label='Special Notes'
                     value={specialnotes}
-                    // labelPadding={3}
                     labelTextStyle={{fontFamily:'TraboRobotoMedium'}}
                     onChangeText={ (specialnotes) => this.setState({ specialnotes }) }
                     animationDuration={150}
-                    // style={{marginLeft:30}}
                     containerStyle={{marginLeft:7}}
                 />  
-                {/* <Text>{specialNotes}</Text> */}
-
-
+                */}
+                <TextGeneral value={productDetail.specialNote} fontSize="18px" />
               </Col>
             </Row>
           </CardView>
@@ -695,7 +635,6 @@ class BookingNewFormScreen extends React.Component {
             </Row>
 
             <Row size={12}>
-              
               <Col sm={12} style={{margin: 30}}>
                 <Button 
                   style={{marginTop: 17, marginBottom: 10}}

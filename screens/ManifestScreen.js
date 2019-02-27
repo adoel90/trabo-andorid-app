@@ -28,7 +28,7 @@ export default class ManifestScreen extends React.Component {
 
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         
-      
+        
       </View>
     );
   }

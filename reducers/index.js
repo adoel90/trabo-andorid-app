@@ -9,6 +9,11 @@ import bookingProductDetailReducer from './bookingProductDetail';
 import bookingCalculatePriceReducer from './Payment/bookingPostCalculatePrice';
 import paymentCashReducer from './Payment/paymentCash';
 import paymentTransferBankReducer from './Payment/paymentTransferBank';
+import paymentCreditCardReducer from './Payment/paymentCreditCard';
+import paymentDepositCashReducer from './Payment/paymentDepositCash';
+import paymentDepositTransferReducer from './Payment/paymentDepositTransferBank';
+
+import manifestListAvailableReducer from './Manifest/manifestListAvailable';
 
 export default combineReducers({
     login: loginReducer,
@@ -19,7 +24,11 @@ export default combineReducers({
     productDetail: bookingProductDetailReducer,
     calculatePrice: bookingCalculatePriceReducer,
     paymentCash: paymentCashReducer,
-    paymentTransfer: paymentTransferBankReducer
+    paymentTransfer: paymentTransferBankReducer,
+    paymentCreditCard: paymentCreditCardReducer,
+    paymentDepositCash: paymentDepositCashReducer,
+    paymentDepositTransfer:paymentDepositTransferReducer,
+    manifestAvailable: manifestListAvailableReducer
     
 });
 

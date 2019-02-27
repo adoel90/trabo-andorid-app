@@ -53,5 +53,6 @@ export const postFormBooking = (data) => ({
             url: URL_API + "/product/book",
             next: STATUS_DATA_FORM_OF_BOOKING
         },
-    data: data  
+    data: data,
+    access_token: data.access_token
 });

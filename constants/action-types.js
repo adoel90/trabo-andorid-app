@@ -24,6 +24,13 @@ const asyncStatusPayment= (type) => ({
     ERROR: `[API] ${type}_ERROR`,
 });
 
+//*MANIFEST
+const asyncStatusManifest = (type) => ({
+    PENDING: `[API] ${type}_PENDING`,
+    SUCCESS: `[API] ${type}_SUCCESS`,
+    ERROR: `[API] ${type}_ERROR`,
+});
+
 export const API_POST_USER_REQUEST = '[Middleware] Api POST User Request...';
 export const API_GET_USER_REQUEST = '[Middleware] Api GET User Request...';
 
@@ -77,3 +84,26 @@ export const RESULT_PAYEMENT_CASH = asyncStatusPayment("Status POST Payment Cash
 //Booking - Payment - Full Payment Via Transfer Bank - {{url}}/payment/xendit/invoice
 export const SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST = "Request POST Payment Transfer Bank, status... ";
 export const RESULT_PAYMENT_TRANSFER_BANK = asyncStatusPayment("Status POST Payment Transfer Bank, status... ");
+
+//Booking - Payment - Payment Via Credit Card
+export const SENDING_DATA_PAYMENT_CREDIT_CARD_REQUEST = "Request POST Payment Credit Card, status...";
+export const RESULT_PAYMENT_CREDIT_CARD = asyncStatusPayment("Status POST Payment Credit Card, status...");
+
+//Booking - Payment - Payment Deposit Cash
+export const SENDING_DATA_PAYMENT_DESPOSIT_CASH_REQUEST = "Request POST Payment Deposit Cash, status... ";
+export const RESULT_PAYMENT__DEPOSIT_CASH = asyncStatusPayment("Status POST Payment Deposit Cash, status... ");
+
+//Booking - Payment - Payment Deposit Via Transfer Bank 
+export const SENDING_DATA_PAYMENT_DEPOSIT_TRANSFER_BANK_REQUEST = "Request POST Payment Deposit Transfer Bank, status... ";
+export const RESULT_PAYMENT_DEPOSIT_TRANSFER_BANK = asyncStatusPayment("Status POST Payment Deposit Transfer Bank, status... ");
+
+
+//Manifest - List Product || {{url}}/manifest/product/available?
+export const MANIFEST_LIST_REQUEST = "Request Manifest List, status... "
+export const GET_MANIFEST_LIST = asyncStatusManifest("Gets Manifest List, status... ");
+
+//Manifest - List Date ||  {{url}}/manifest/operation-dates/A-0921014
+export const MANIFEST_LIST_DATE_REQUEST = "Request List Date inside Manifest Page, status...";
+export const GET_LIST_DATE_INSIDE_MANIFEST = asyncStatusManifest("Get List Date Inside Manifest Page, status... ");
+
+

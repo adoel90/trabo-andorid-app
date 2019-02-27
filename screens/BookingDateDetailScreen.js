@@ -55,13 +55,13 @@ class BookingDateDetailScreen extends React.Component {
       listProductAndCode: {},
       accessToken: ''
     }
-
-  }
+  };
 
   componentDidMount(){
     const { navigation, action } = this.props;
     const dateParamsFromBookingScreen = navigation.getParam('secondData');
     const accessTokenMobileFromBookingScreen = navigation.getParam('thirdDataIsToken');
+    const productCode = navigation.getParam('fourthDataProductCode');
     
     this.setState({
       ...this.state,
@@ -71,10 +71,10 @@ class BookingDateDetailScreen extends React.Component {
     //*******************
     let data = {
       date: dateParamsFromBookingScreen,
-      access_token: accessTokenMobileFromBookingScreen
+      access_token: accessTokenMobileFromBookingScreen,
+      product_code: productCode
     }
     action.getProductWithDateAvalaible(data);
-    
   };
 
   componentDidUpdate(prevProps){
@@ -127,7 +127,6 @@ class BookingDateDetailScreen extends React.Component {
     return (
       <View style={styles.container}>   
         <ScrollView>
-        
           <SalesCalendarResultView> 
             
             {

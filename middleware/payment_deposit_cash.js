@@ -1,33 +1,32 @@
 
 import axios from 'axios'
-import { PRODUCT_DATE_AVAILABLE_REQUEST } from '../constants/action-types';
+import { SENDING_DATA_PAYMENT_DESPOSIT_CASH_REQUEST } from '../constants/action-types';
 
-
-const bookingProductDateAvailableMiddleware = ({ dispatch }) => (next) => (action) => {
+const paymentDepositCashMiddleware = ({ dispatch }) => (next) => (action) => {
 
     const body = {};
     const headers =  {
-        'Authorization' : action.access_token != null ? "Bearer " + action.access_token : "Bearer : Where is your token ? ",
+        // 'Authorization' : action.data != null ? action.data.token_type + " "+ action.data.access_token : "Bearer " + tokenTest,
+        'Authorization' : "Bearer " + action.access_token,
         'Accept': "application/json",
         'Content-Type' : "application/json"
-
     };
 
     axios.defaults.headers.common = headers;
 
-
-    if(action.type === PRODUCT_DATE_AVAILABLE_REQUEST ){
+    if(action.type === SENDING_DATA_PAYMENT_DESPOSIT_CASH_REQUEST ){
         
         axios
-        .get(action.payload.url)
+        .post(action.payload.url, action.data)
         .then(function (response) {
             // console.log(response);
             
             if(response.status == 200){
-                dispatch({type: action.payload.next.SUCCESS, payload: response.data ? response.data.response : null})
+                dispatch({type: action.payload.next.SUCCESS, payload: response.data})
             
             } else {
                 dispatch({type:action.payload.next.PENDING});
+                console.log(" ==> Check your data is not empty !");
             }
             
         })
@@ -39,7 +38,8 @@ const bookingProductDateAvailableMiddleware = ({ dispatch }) => (next) => (actio
         dispatch({type: action.payload.next.PENDING})
     }
 
+
     next(action);
 }; 
 
-export default bookingProductDateAvailableMiddleware;
+export default paymentDepositCashMiddleware;

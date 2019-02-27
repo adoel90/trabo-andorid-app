@@ -21,10 +21,11 @@ const sagaMonitor = Reactotron.createSagaMonitor();
 const sagaMiddleware = createSagaMiddleware({sagaMonitor});
 
 import rootReducer from './reducers';
+
+//*BOOKING & PAYMENT
 import userMiddleware from './middleware/user';
 import loginMiddleware from './middleware/login';
 import recentOrderMiddleware from './middleware/booking_recent';
-
 import bookingProductMiddleware from './middleware/booking_product';
 import bookingProductDateAvailableMiddleware from './middleware/booking_product_date_available';
 import bookingProductDetailMiddleware from './middleware/booking_product_detail';
@@ -32,9 +33,15 @@ import bookingProductDetailMiddleware from './middleware/booking_product_detail'
 import postBookingCalculatePriceMiddleware from './middleware/booking_post_calculate_price';
 import paymentCashMiddleware from './middleware/payment_cash';
 import paymentTransferBankMiddleware from './middleware/payment_transfer_bank';
+import paymentTransferCreditCardMiddleware from './middleware/payment_credit_card';
+import paymentDepositCashMiddleware from './middleware/payment_deposit_cash';
+import paymentDepositTransferBankMiddleware from './middleware/payment_deposit_transfer';
+import manifestListDateMiddleware from './middleware/manifest_list_date';
+
+//*MANIFEST
+import manifestListMiddleware from './middleware/manifest_list_available';
 
 import { rootSaga } from './middleware-saga/index';
-
 
 const store = Reactotron.createStore(rootReducer, applyMiddleware(
                                                       // logMiddleware,
@@ -48,10 +55,14 @@ const store = Reactotron.createStore(rootReducer, applyMiddleware(
                                                       // postFormBookingMiddleware,
                                                       postBookingCalculatePriceMiddleware,
                                                       paymentCashMiddleware,
-                                                      paymentTransferBankMiddleware
+                                                      paymentTransferBankMiddleware,
+                                                      paymentTransferCreditCardMiddleware,
+                                                      paymentDepositCashMiddleware,
+                                                      paymentDepositTransferBankMiddleware,
+                                                      manifestListMiddleware,
+                                                      manifestListDateMiddleware
                                                     ));
                                                       
-
 sagaMiddleware.run(rootSaga);
 
 import {Platform, StyleSheet, Text, View} from 'react-native';

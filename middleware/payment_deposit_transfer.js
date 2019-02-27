@@ -1,8 +1,8 @@
 
 import axios from 'axios'
-import { SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST } from '../constants/action-types';
+import { SENDING_DATA_PAYMENT_DEPOSIT_TRANSFER_BANK_REQUEST } from '../constants/action-types';
 
-const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
+const paymentDepositTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
 
     const body = {};
     const headers =  {
@@ -13,7 +13,7 @@ const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
 
     axios.defaults.headers.common = headers;
 
-    if(action.type === SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST ){
+    if(action.type === SENDING_DATA_PAYMENT_DEPOSIT_TRANSFER_BANK_REQUEST ){
         
         axios
             .post(action.payload.url, action.data)
@@ -40,4 +40,4 @@ const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
     next(action);
 }; 
 
-export default paymentTransferBankMiddleware;
+export default paymentDepositTransferBankMiddleware;

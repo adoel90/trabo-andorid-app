@@ -45,6 +45,7 @@ class BookingPaymentTransferBank extends React.Component {
             other: 'OTHER',
             selectedRadioButton: '',
             accessToken: null
+            
         };
     
     }
@@ -80,6 +81,7 @@ class BookingPaymentTransferBank extends React.Component {
             ...this.state,
             accessToken: accessTokenMobile
         });
+        //********************************** */
 
         const { selectedRadioButton} = this.state;
         const { action } = this.props;
@@ -110,8 +112,6 @@ class BookingPaymentTransferBank extends React.Component {
         })
     };
 
-    
-    
     render() {
 
         const { mandiri, bni, bri, alfamart } = this.state;

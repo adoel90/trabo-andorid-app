@@ -1,7 +1,8 @@
 import { createStackNavigator, createMaterialTopTabNavigator } from 'react-navigation';
 import HomeDetailScreen from '../screens/HomeDetailScreen';
 import BookingScreen from '../screens/BookingScreen';
-import ManifestScreen from '../screens/ManifestScreen';
+import ManifestScreen from '../screens/Manifest/ManifestScreen';
+// import ManifestScreen from '../screens/ManifestScreen';
 import ReportScreen from '../screens/ReportScreen';
 
 //Booking Stack
@@ -20,15 +21,15 @@ import ReportScreen from '../screens/ReportScreen';
 // };
 
 //Manifest Stack
-const ManifestStack = createStackNavigator(
-    {
-        Manifest: ManifestScreen,
-    }
-);
+// const Manifest = createStackNavigator(
+//     {
+//         Manifest: ManifestScreen,
+//     }
+// );
   
-ManifestStack.navigationOptions = {
-    tabBarLabel: 'Manifest'
-};
+// ManifestStack.navigationOptions = { // For Label below "Tab"
+//     tabBarLabel: 'Manifest'
+// };
 
 //Report Stack
 const ReportStack = createStackNavigator(
@@ -46,7 +47,7 @@ export default createMaterialTopTabNavigator(
     {
         // BookingStack
         BookingScreen,
-        ManifestStack,
+        ManifestScreen,//Manifest
         ReportStack,
         
     }, 

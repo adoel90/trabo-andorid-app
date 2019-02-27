@@ -1,24 +1,34 @@
 
-import axios from 'axios'
-import { SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST } from '../constants/action-types';
 
-const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
+/*
+    
 
+*/
+
+
+import axios from 'axios';
+import { MANIFEST_LIST_DATE_REQUEST } from '../constants/action-types';
+
+
+const manifestListDateMiddleware = ({ dispatch }) => (next) => (action) => {
+
+    // console.log("Action from middleware Manifest ", action);
+    
     const body = {};
     const headers =  {
-        'Authorization' : "Bearer " + action.access_token,
+        'Authorization' : action.access_token != null ? "Bearer " + action.access_token : "Bearer : Where is your token ? ",
         'Accept': "application/json",
         'Content-Type' : "application/json"
     };
 
     axios.defaults.headers.common = headers;
 
-    if(action.type === SENDING_DATA_PAYMENT_TRANSFER_BANK_REQUEST ){
+    if(action.type === MANIFEST_LIST_DATE_REQUESTs ){
         
         axios
-            .post(action.payload.url, action.data)
+            .get(action.payload.url)
             .then(function (response) {
-                console.log(response);
+                console.log("From Middleware List Date : ", response);
                 
                 if(response.status == 200){
                     dispatch({type: action.payload.next.SUCCESS, payload: response})
@@ -27,6 +37,7 @@ const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
                     dispatch({type:action.payload.next.PENDING});
                     console.log(" ==> Check your data is not empty !");
                 }
+                
             })
             .catch(function (error) {
                 console.log(error);
@@ -34,10 +45,9 @@ const paymentTransferBankMiddleware = ({ dispatch }) => (next) => (action) => {
             })
 
         dispatch({type: action.payload.next.PENDING})
-    }
-
+    };
 
     next(action);
 }; 
 
-export default paymentTransferBankMiddleware;
+export default manifestListDateMiddleware;

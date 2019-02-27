@@ -39,6 +39,7 @@ class BookingPaymentScreen extends React.Component {
     };
 
     constructor(props){
+        
         super(props);
         this.radioGroup = new MKRadioButton.Group();
 
@@ -48,6 +49,9 @@ class BookingPaymentScreen extends React.Component {
         this.handleButtonModalPaymentCash = this.handleButtonModalPaymentCash.bind(this);
         this.handleCalculatePrice = this.handleCalculatePrice.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
+        this.handlePaymentCreditCard = this.handlePaymentCreditCard.bind(this);
+        this.handleModalOrPageDepositPayment = this.handleModalOrPageDepositPayment.bind(this);
+
         this.state = {
             active: '',
             resultCalculate:null,
@@ -137,7 +141,7 @@ class BookingPaymentScreen extends React.Component {
         const data = {
             
             transaction_code:"56713178-25-02-2019-1474",
-            payment_type:"deposit",
+            payment_type: "full", //payment type: full,deposit, or complimentary
             access_token: accessToken.access_token
             
         };
@@ -167,7 +171,20 @@ class BookingPaymentScreen extends React.Component {
     handleCloseModal = (e) => {
         e.preventDefault();
         this.refs.modal3.close()
+    };
+
+    handlePaymentCreditCard = (e) => {
+        e.preventDefault();
+
+        this.props.navigation.navigate('BookingPaymentCredit');
+    };
+
+    handleModalOrPageDepositPayment = (e) => {
+        e.preventDefault();
+        this.props.navigation.navigate('BookingPaymentWithDeposit');
     }
+    
+    
 
     render() {
 
@@ -329,7 +346,10 @@ class BookingPaymentScreen extends React.Component {
                                         Make full payment
                                     </TextListPaymentStatus>
                                 </TouchableHighlight>
-                                <TextListPaymentStatus style={{marginTop: 10}}>Make a deposit payment</TextListPaymentStatus>
+                                <TextListPaymentStatus 
+                                    onPress={(e) => this.handleModalOrPageDepositPayment(e)}
+                                    style={{marginTop: 10}}>Make a deposit payment</TextListPaymentStatus>
+                                    
                                 <TextListPaymentStatus style={{marginTop: 10}}>Not yet paid</TextListPaymentStatus>
                             </Col>
                         </Row>
@@ -387,7 +407,9 @@ class BookingPaymentScreen extends React.Component {
                             title: 'Credit Card',
                             fontFamily:'TraboRobotoMedium',
                             icon: (
-                                <OptionRadioButton />
+                                <OptionRadioButton 
+                                    onPress= {(e) => this.handlePaymentCreditCard(e)}
+                                />
                             ),
                             onPress: () => null
                         },

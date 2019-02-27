@@ -6,6 +6,11 @@ import BookingDateDetailScreen from '../screens/BookingDateDetailScreen';
 import BookingNewFormScreen from '../screens/BookingNewFormScreen';
 import BookingPaymentScreen from '../screens/Payment/BookingPaymentScreen';
 import BookingPaymentTransferBank from '../screens/Payment/BookingPaymentTransferBank';
+import BookingPaymentWithDepositScreen from '../screens/Payment/BookingPaymentWithDepositScreen';
+
+//*MANIFEST
+import ManifestDetailScreen from '../screens/Manifest/ManifestDetailScreen';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 // import { LinearGradient } from 'expo';
@@ -64,7 +69,16 @@ export default createStackNavigator (
         },
         BookingPaymentTransferBank: {
             screen: BookingPaymentTransferBank
-        }
+        },
+        BookingPaymentWithDeposit:{
+            screen: BookingPaymentWithDepositScreen
+        },
+
+        //*MANIFEST
+        // ManifestDetail: {
+        //     screen: ManifestDetailScreen
+        // }
+        
     },
 
     //* StackNavigatorConfig
